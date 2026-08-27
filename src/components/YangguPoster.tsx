@@ -37,7 +37,7 @@ export function YangguPoster({
             {name}의 양구 · {formatDate(date)}
           </h2>
         </div>
-        <CompanionSprite id={companionId} look={look} className="h-16 w-16 shrink-0" />
+        <CompanionSprite look={look} className="h-[4.5rem] w-14 shrink-0" />
       </div>
 
       {grid.length > 0 ? (
@@ -61,7 +61,7 @@ export function YangguPoster({
               ) : null}
               {i === 0 ? (
                 <div className="absolute right-1 bottom-1 rounded-lg bg-white/90 p-0.5">
-                  <CompanionSprite id={companionId} look={look} className="h-9 w-9" />
+                  <CompanionSprite look={look} className="h-10 w-8" />
                 </div>
               ) : null}
             </div>

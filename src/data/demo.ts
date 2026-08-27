@@ -1,7 +1,7 @@
 import type { Citizen, ColorSwatch, YangguFragment, YangguKind } from '../types'
 
 const SEED_KEY = 'yanggu-demo-seed'
-const SEED_VERSION = 'issued-v4'
+const SEED_VERSION = 'issued-v5'
 const CITIZEN_KEY = 'yanggu-cyber-citizen'
 const FRAGMENT_KEY = 'yanggu-fragments'
 const STEPS_KEY = 'yanggu-day-steps'
@@ -18,7 +18,7 @@ export const DEMO_CITIZEN: Citizen = {
   design: 4,
   visitCount: '5회이상',
   visitPurpose: '군면회',
-  companion: 'sori',
+  companion: 'baekkobi',
   emailAgree: true,
   smsAgree: true,
   issuedAt: '2026-02-08',

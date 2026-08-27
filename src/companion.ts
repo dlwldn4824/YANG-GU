@@ -1,6 +1,6 @@
 import type { CompanionId, YangguKind } from './types'
 
-export const COMPANION_IDS = ['sori', 'nuri', 'dari', 'bom'] as const
+export const BAEKKOBI_SRC = '/assets/baekkobi.png'
 
 export type CompanionHold = 'none' | 'melon' | 'coffee' | 'bread' | 'camera'
 
@@ -16,11 +16,15 @@ export const COMPANIONS: {
   name: string
   color: string
   line: string
+  src: string
 }[] = [
-  { id: 'sori', name: '소리', color: '#447e1d', line: '숲길을 좋아하는 양구 군민' },
-  { id: 'nuri', name: '누리', color: '#3d6b8a', line: '천천히 걷는 양구 군민' },
-  { id: 'dari', name: '다리', color: '#c4784a', line: '카페에서 쉬는 양구 군민' },
-  { id: 'bom', name: '봄이', color: '#8a5a8c', line: '계절을 모으는 양구 군민' },
+  {
+    id: 'baekkobi',
+    name: '배꼬비',
+    color: '#f6d48a',
+    line: '양구를 함께 걷는 공식 캐릭터',
+    src: BAEKKOBI_SRC,
+  },
 ]
 
 export function companionById(id?: string) {

@@ -68,7 +68,7 @@ export function FilmPage() {
 
       <section className="mt-6 rounded-3xl border border-main-100 bg-main-50 px-5 py-6">
         <div className="flex items-start gap-4">
-          <CompanionSprite id={citizen?.companion} look={look} className="h-24 w-24 shrink-0" />
+          <CompanionSprite look={look} className="h-28 w-24 shrink-0" />
           <div>
             <p className="font-display text-lg font-extrabold">{companion.name}</p>
             <p className="mt-1 text-sm text-gray-600">{companion.line}</p>

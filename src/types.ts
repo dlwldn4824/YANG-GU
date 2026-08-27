@@ -48,7 +48,7 @@ export type CommaSpace = {
 
 export type YangguKind = 'melon' | 'coffee' | 'bread' | 'flower' | 'family' | 'mountain' | 'apple' | 'food'
 
-export type CompanionId = 'sori' | 'nuri' | 'dari' | 'bom'
+export type CompanionId = 'baekkobi'
 
 export type ColorSwatch = {
   hex: string

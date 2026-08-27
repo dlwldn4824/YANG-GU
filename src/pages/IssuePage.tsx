@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { CitizenCard } from '../components/CitizenCard'
 import { useAuth } from '../auth'
-import { COMPANIONS } from '../companion'
 import { CompanionSprite } from '../components/CompanionSprite'
 import { CARD_DESIGNS } from '../data'
 import type { CardDesign, Citizen, CompanionId } from '../types'
@@ -40,7 +39,7 @@ const empty: Form = {
   phone: '',
   birth: '',
   design: 4,
-  companion: 'sori',
+  companion: 'baekkobi',
   eligible: true,
   visitCount: '',
   visitPurpose: '',
@@ -238,25 +237,17 @@ export function IssuePage() {
               <div className="mt-6">
                 <CitizenCard design={form.design} />
               </div>
-              <p className="mt-8 mb-3 text-sm font-bold">
-                함께 다닐 군민 캐릭터 <em className="text-point">*</em>
+              <p className="mt-8 mb-3 text-sm font-bold">함께 다닐 양구 캐릭터</p>
+              <p className="mb-3 text-sm text-gray-600">
+                양구의 배꼬비가 같이 다닙니다. 걸음이나 사진을 채우라고 보채지 않고, 오늘 한 일에 맞춰 모습이 조금
+                바뀝니다.
               </p>
-              <p className="mb-3 text-sm text-gray-600">걸음이나 사진을 채우라고 보채지 않습니다. 오늘 한 일에 맞춰 모습이 바뀝니다.</p>
-              <div className="grid grid-cols-2 gap-3">
-                {COMPANIONS.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => set('companion', item.id)}
-                    className={`rounded-2xl border-2 p-3 text-left ${
-                      form.companion === item.id ? 'border-main bg-main-50' : 'border-gray-100'
-                    }`}
-                  >
-                    <CompanionSprite id={item.id} className="h-16 w-16" />
-                    <p className="font-display mt-2 font-extrabold">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">{item.line}</p>
-                  </button>
-                ))}
+              <div className="flex items-center gap-4 rounded-2xl border border-main-100 bg-main-50 px-4 py-4">
+                <CompanionSprite className="h-24 w-20 shrink-0" />
+                <div>
+                  <p className="font-display text-lg font-extrabold">배꼬비</p>
+                  <p className="mt-1 text-sm text-gray-600">양구를 함께 걷는 공식 캐릭터</p>
+                </div>
               </div>
             </div>
           ) : null}

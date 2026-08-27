@@ -59,7 +59,18 @@ export function Layout() {
           <div className="flex items-center gap-2 text-sm">
             {citizen ? (
               <>
-                <span className="hidden max-w-28 truncate text-gray-600 sm:inline">{citizen.name} 님</span>
+                <NavLink
+                  to="/card"
+                  title="내 군민증"
+                  className={`flex items-center gap-1.5 rounded-full px-2 py-1.5 font-medium ${
+                    isNavActive(location.pathname, '/card')
+                      ? 'bg-main-50 text-main'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon name="user" className="h-5 w-5" />
+                  <span className="hidden max-w-28 truncate sm:inline">{citizen.name} 님</span>
+                </NavLink>
                 <button
                   type="button"
                   onClick={logout}
@@ -70,8 +81,12 @@ export function Layout() {
               </>
             ) : (
               <>
-                <NavLink to="/login" className="rounded-full px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-50">
-                  로그인
+                <NavLink
+                  to="/login"
+                  className="flex items-center gap-1.5 rounded-full px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50"
+                >
+                  <Icon name="user" className="h-5 w-5" />
+                  <span className="hidden sm:inline">로그인</span>
                 </NavLink>
                 <NavLink
                   to="/issue"
