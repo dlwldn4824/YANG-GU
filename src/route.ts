@@ -60,6 +60,24 @@ export function makeLeg(from: GeoPoint, to: GeoPoint): RouteLeg {
   }
 }
 
+export function makeLegFromRoad(
+  meters: number,
+  durationSec: number,
+  profile: 'foot' | 'driving',
+): RouteLeg {
+  const byWalk = profile === 'foot'
+  const minutes = Math.max(1, Math.round(durationSec / 60))
+  return {
+    meters,
+    distance: formatDistance(meters),
+    walk: formatWalkMinutes(meters, byWalk ? minutes : undefined),
+    drive: formatDriveMinutes(meters, byWalk ? undefined : minutes),
+    minutes,
+    taxiWon: estimateTaxiWon(meters),
+    byWalk,
+  }
+}
+
 export function formatWon(won: number) {
   return `${won.toLocaleString('ko-KR')}원`
 }

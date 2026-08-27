@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { CitizenCard } from '../components/CitizenCard'
 import { useAuth } from '../auth'
+import { COMPANIONS } from '../companion'
+import { CompanionSprite } from '../components/CompanionSprite'
 import { CARD_DESIGNS } from '../data'
-import type { CardDesign, Citizen } from '../types'
+import type { CardDesign, Citizen, CompanionId } from '../types'
 import { addYears, makeCardNo, todayIso } from '../utils'
 
 const VISITS = ['방문예정', '1번', '2번', '3~4번', '5회이상']
@@ -18,6 +20,7 @@ type Form = {
   phone: string
   birth: string
   design: CardDesign
+  companion: CompanionId
   eligible: boolean
   visitCount: string
   visitPurpose: string
@@ -37,6 +40,7 @@ const empty: Form = {
   phone: '',
   birth: '',
   design: 4,
+  companion: 'sori',
   eligible: true,
   visitCount: '',
   visitPurpose: '',
@@ -123,6 +127,7 @@ export function IssuePage() {
       address: form.address,
       detailAddress: form.detailAddress,
       design: form.design,
+      companion: form.companion,
       visitCount: form.visitCount,
       visitPurpose: form.visitPurpose,
       emailAgree: form.emailAgree,
@@ -140,7 +145,7 @@ export function IssuePage() {
       <PageHeader kicker="발급" title="사이버 군민증 발급" desc="* 표시는 필수 입력 사항입니다." />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <ol className="grid grid-cols-3 gap-2 text-center text-xs font-bold">
-          {['기본 정보', '카드 디자인', '거주·동의'].map((label, i) => (
+          {['기본 정보', '카드·캐릭터', '거주·동의'].map((label, i) => (
             <li
               key={label}
               className={`rounded-full py-2 ${step === i + 1 ? 'bg-main text-white' : 'bg-gray-100 text-gray-500'}`}
@@ -232,6 +237,26 @@ export function IssuePage() {
               </div>
               <div className="mt-6">
                 <CitizenCard design={form.design} />
+              </div>
+              <p className="mt-8 mb-3 text-sm font-bold">
+                함께 다닐 군민 캐릭터 <em className="text-point">*</em>
+              </p>
+              <p className="mb-3 text-sm text-gray-600">걸음이나 사진을 채우라고 보채지 않습니다. 오늘 한 일에 맞춰 모습이 바뀝니다.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {COMPANIONS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => set('companion', item.id)}
+                    className={`rounded-2xl border-2 p-3 text-left ${
+                      form.companion === item.id ? 'border-main bg-main-50' : 'border-gray-100'
+                    }`}
+                  >
+                    <CompanionSprite id={item.id} className="h-16 w-16" />
+                    <p className="font-display mt-2 font-extrabold">{item.name}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{item.line}</p>
+                  </button>
+                ))}
               </div>
             </div>
           ) : null}

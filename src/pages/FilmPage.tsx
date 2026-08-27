@@ -1,20 +1,49 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth'
-import { daySpan, filmFrames, uniqueColors, useJournal } from '../journal'
+import { companionById, companionLook, companionSpeech, posterCaption } from '../companion'
+import { WEEKLY_PICKS, PARTNER_GEO } from '../data/picks'
+import { BENEFITS } from '../data'
+import { formatWalkMinutes, haversineMeters } from '../geo'
+import { todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
+import { useDaySteps } from '../steps'
+import { useOrigin } from '../useOrigin'
+import { formatMonthLabel, localDateIso, parseKnownSaving } from '../utils'
 import { readPhotoAsFragment } from '../vision'
-import { formatDate, formatDuration } from '../utils'
+import { CompanionSprite } from '../components/CompanionSprite'
+import { YangguPoster } from '../components/YangguPoster'
 import { Icon } from '../components/Icon'
+import type { YangguKind } from '../types'
+
+const PICK_KIND: Record<string, YangguKind> = {
+  season: 'melon',
+  bread: 'bread',
+  lunch: 'food',
+  linger: 'coffee',
+}
 
 export function FilmPage() {
   const { citizen } = useAuth()
   const { fragments, addFragment } = useJournal()
+  const { steps, walking, error: walkError, startWalk, stopWalk } = useDaySteps()
+  const { origin } = useOrigin()
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const frames = filmFrames(fragments)
-  const colors = uniqueColors(fragments)
-  const first = frames[0]
-  const last = frames[frames.length - 1]
+
+  const today = todayFragments(fragments)
+  const source = today.length > 0 ? today : fragments.slice(0, 6)
+  const moments = source.slice(0, 6)
+  const kinds = uniqueKinds(today).map((item) => item.kind)
+  const colors = uniqueColors(today.length > 0 ? today : fragments)
+  const look = companionLook(steps, kinds, today.length)
+  const companion = companionById(citizen?.companion)
+  const speech = companionSpeech(companion.name, steps, kinds, colors[0]?.name)
+  const visits = visitDays(fragments)
+  const months = visitMonths(fragments)
+  const date = localDateIso()
+  const pickHits = WEEKLY_PICKS.filter((story) => kinds.includes(PICK_KIND[story.id])).length
+  const missed = unseenPick(kinds, origin)
 
   const onFile = async (file?: File) => {
     if (!file) return
@@ -30,116 +59,157 @@ export function FilmPage() {
   }
 
   return (
-    <div className="bg-[#14120f] pb-8 text-[#f4ead8]">
-      <main className="mx-auto max-w-3xl px-4 py-8">
-        <div className="flex items-start justify-between gap-3">
+    <main className="mx-auto max-w-3xl px-4 py-8">
+      <p className="text-sm font-bold text-sub">발자국</p>
+      <h1 className="font-display mt-1 text-3xl font-extrabold">{citizen?.name ?? '나의'}의 양구 한 장</h1>
+      <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">
+        걸음을 채울 필요는 없습니다. 사진만 남기면 걸음·색·순간이 모여, 오늘 양구의 여행 카드가 됩니다.
+      </p>
+
+      <section className="mt-6 rounded-3xl border border-main-100 bg-main-50 px-5 py-6">
+        <div className="flex items-start gap-4">
+          <CompanionSprite id={citizen?.companion} look={look} className="h-24 w-24 shrink-0" />
           <div>
-            <p className="text-[11px] font-bold tracking-[0.18em] text-[#c5d45a]">필름</p>
-            <h1 className="mt-2 text-3xl font-extrabold">{citizen?.name ?? '나의'}의 양구 컬러 필름</h1>
+            <p className="font-display text-lg font-extrabold">{companion.name}</p>
+            <p className="mt-1 text-sm text-gray-600">{companion.line}</p>
+            <p className="mt-3 text-sm font-semibold text-main">{speech}</p>
           </div>
-          <button type="button" onClick={() => window.print()} className="mt-2 shrink-0 text-sm font-bold text-[#f4ead8]/70">
+        </div>
+
+        <p className="mt-6 text-sm font-bold">오늘 양구에서 남긴 발자국</p>
+        <p className="font-display mt-1 text-4xl font-extrabold tracking-tight">
+          {steps.toLocaleString('ko-KR')}
+          <span className="ml-1 text-lg font-bold">걸음</span>
+        </p>
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700">
+          <li>발견한 색 {colors.length}개</li>
+          <li>남긴 순간 {today.length}장</li>
+          <li>군민 PICK {pickHits}개</li>
+        </ul>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => (walking ? stopWalk() : startWalk())}
+            className="rounded-full bg-main px-4 py-2 text-sm font-bold text-white"
+          >
+            {walking ? '걷기 멈추기' : '오늘 걷기 시작'}
+          </button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => {
+              void onFile(e.target.files?.[0])
+              e.target.value = ''
+            }}
+          />
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+            className="rounded-full border border-main px-4 py-2 text-sm font-bold text-main disabled:opacity-60"
+          >
+            {busy ? '사진을 읽는 중...' : '사진 남기기'}
+          </button>
+        </div>
+        {walkError ? <p className="mt-2 text-xs text-gray-500">{walkError}</p> : null}
+        {error ? <p className="mt-2 text-xs text-gray-500">{error}</p> : null}
+      </section>
+
+      {colors.length > 0 ? (
+        <section className="mt-8">
+          <p className="text-sm font-bold">오늘 발견한 양구색</p>
+          <div className="mt-3 overflow-hidden rounded-2xl">
+            <div className="flex h-10">
+              {colors.map((swatch) => (
+                <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
+              ))}
+            </div>
+          </div>
+          <ul className="mt-3 space-y-1.5 text-sm">
+            {colors.map((swatch) => (
+              <li key={swatch.hex} className="flex items-center gap-2">
+                <i className="inline-block h-3 w-3 rounded-full" style={{ background: swatch.hex }} />
+                <span className="font-semibold">{swatch.name}</span>
+                <span className="text-gray-400">{swatch.hex}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="mt-10">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-xl font-extrabold">나의 양구 한 장</h2>
+          <button type="button" onClick={() => window.print()} className="text-sm font-bold text-main">
             저장
           </button>
         </div>
-        <p className="mt-3 max-w-lg text-sm leading-6 text-[#f4ead8]/75">
-          길을 걷다 자유롭게 찍으면, 사진의 대표색이 군민증에 쌓입니다. 완주하거나 보상받을 일은 없어요. 더 많이 걷고
-          볼수록 필름만 풍성해집니다.
-        </p>
+        <p className="mt-1 text-sm text-gray-500">찍은 사진으로 자동으로 붙입니다. 디자인을 고를 필요는 없어요.</p>
+        <div className="mt-4">
+          <YangguPoster
+            name={citizen?.name ?? '나의'}
+            date={date}
+            steps={steps}
+            colors={colors.slice(0, 6)}
+            moments={moments}
+            kinds={kinds}
+            companionId={citizen?.companion}
+            caption={posterCaption(steps, kinds)}
+            speech={speech}
+          />
+        </div>
+      </section>
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) => {
-            void onFile(e.target.files?.[0])
-            e.target.value = ''
-          }}
-        />
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#c5d45a] px-5 py-3 text-sm font-extrabold text-[#14120f] disabled:opacity-60"
-        >
-          <Icon name="scan" className="h-4 w-4" />
-          {busy ? '색을 꺼내는 중...' : '걷다 찍기'}
-        </button>
-        {error ? <p className="mt-2 text-sm text-[#f4ead8]/60">{error}</p> : null}
-
-        {colors.length > 0 ? (
-          <section className="mt-8">
-            <p className="text-xs font-bold tracking-[0.16em] text-[#f4ead8]/50">모은 색</p>
-            <div className="mt-3 overflow-hidden rounded-2xl">
-              <div className="flex h-14">
-                {colors.map((swatch) => (
-                  <div key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} title={swatch.name} />
-                ))}
-              </div>
-            </div>
-            <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
-              {colors.map((swatch) => (
-                <span key={swatch.hex} className="shrink-0 text-[11px] font-semibold text-[#f4ead8]/80">
-                  <i className="mr-1 inline-block h-2.5 w-2.5 rounded-full" style={{ background: swatch.hex }} />
-                  {swatch.name}
-                </span>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <section className="film-strip mt-10 rounded-[28px] bg-[#1d1a16] px-3 py-6">
-          <div className="flex justify-between px-2 text-[10px] font-bold tracking-[0.24em] text-[#f4ead8]/35">
-            <span>양구</span>
-            <span>{frames.length}칸</span>
-          </div>
-          {frames.length === 0 ? (
-            <p className="px-4 py-16 text-center text-sm text-[#f4ead8]/50">아직 필름이 비어 있어요. 길에서 한 장을 찍으면 첫 칸이 생깁니다.</p>
-          ) : (
-            <ol className="mt-4 space-y-5">
-              {frames.map((frame, i) => (
-                <li key={frame.id} className="overflow-hidden rounded-xl bg-black">
-                  <div className="relative aspect-[3/2] bg-[#2a261f]">
-                    {frame.thumb ? (
-                      <img src={frame.thumb} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="grid h-full place-items-center text-lg font-extrabold text-[#f4ead8]/70">
-                        {frame.label}
-                      </div>
-                    )}
-                    <span className="absolute top-2 left-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <div className="flex h-3">
-                    {(frame.colors ?? []).length > 0
-                      ? (frame.colors ?? []).map((swatch) => (
-                          <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
-                        ))
-                      : <span className="flex-1 bg-[#3a342c]" />}
-                  </div>
-                  <div className="flex items-center justify-between px-3 py-2 text-[11px] text-[#f4ead8]/70">
-                    <span>
-                      {frame.area} · {frame.label}
-                    </span>
-                    <span>{frame.tag.split('·').pop()?.trim()}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-          <div className="mt-6 px-2 text-center text-[11px] leading-5 text-[#f4ead8]/45">
-            {first && last ? (
-              <p>
-                {formatDate(first.date)} — {formatDate(last.date)}
-                {daySpan(frames) > 60_000 ? ` · ${formatDuration(daySpan(frames))}` : ''}
-              </p>
-            ) : null}
-            <p className="mt-1">걷고 본 만큼만 남습니다. 다 채우지 않아도 됩니다.</p>
-          </div>
+      {missed ? (
+        <section className="mt-10 rounded-3xl border border-gray-100 p-5">
+          <p className="text-sm font-bold text-sub">오늘 기록하지 못한 양구 하나</p>
+          <h3 className="font-display mt-2 text-xl font-extrabold">{missed.story.title}</h3>
+          <p className="mt-1 text-sm text-gray-600">{missed.story.line}</p>
+          {missed.partner ? (
+            <p className="mt-3 text-sm font-semibold">
+              현재 위치에서 {formatWalkMinutes(missed.meters)}
+              {missed.saving ? ` · 사이버 군민 혜택 ${missed.saving.toLocaleString('ko-KR')}원` : ` · ${missed.partner.discount}`}
+            </p>
+          ) : null}
+          <Link to={`/pick/${missed.story.id}`} className="mt-4 inline-flex items-center font-bold text-main">
+            군민 PICK에서 보기 <Icon name="right" className="ml-1 h-4 w-4" />
+          </Link>
         </section>
-      </main>
-    </div>
+      ) : null}
+
+      {visits > 1 ? (
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-extrabold">다시 온 양구</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {companion.name}는 그대로 있고, 양구를 {visits}번 방문한 기록이 남아 있습니다.
+          </p>
+          <ul className="mt-4 space-y-2">
+            {months.map(([month, list]) => (
+              <li key={month} className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm">
+                <span className="font-bold">{formatMonthLabel(`${month}-01`)}</span>
+                <span className="text-gray-600">{uniqueKinds(list).map((item) => item.label).join(' · ')}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </main>
   )
+}
+
+function unseenPick(kinds: YangguKind[], origin: { lat: number; lng: number }) {
+  const story = WEEKLY_PICKS.find((item) => !kinds.includes(PICK_KIND[item.id]))
+  if (!story) return null
+  const partner = BENEFITS.find((item) => item.id === story.partnerIds[0] && PARTNER_GEO[item.id])
+  const meters = partner ? haversineMeters(origin, PARTNER_GEO[partner.id]) : 0
+  const known = partner ? parseKnownSaving(partner.discount) : null
+  return {
+    story,
+    partner,
+    meters,
+    saving: known?.saving,
+  }
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { readPhotoAsFragment } from '../vision'
 import { formatDate, formatDuration, formatMonthLabel, localDateIso } from '../utils'
+import { kindEmoji } from '../kinds'
 import { Icon } from './Icon'
 
 export function MyYanggu() {
@@ -106,18 +107,18 @@ export function MyYanggu() {
           <>
             <div className="relative mx-auto mt-4 h-56 max-w-sm">
               {unique.map((item, i) => (
-                <img
+                <span
                   key={item.id}
-                  src={item.sticker}
-                  alt={item.label}
                   title={item.label}
-                  className="absolute h-20 w-20 object-contain drop-shadow-md"
+                  className="absolute grid h-20 w-20 place-items-center text-5xl drop-shadow-md"
                   style={{
                     left: `${12 + (i % 3) * 30}%`,
                     top: `${8 + Math.floor(i / 3) * 34}%`,
                     transform: `rotate(${i % 2 === 0 ? -8 : 10}deg)`,
                   }}
-                />
+                >
+                  {kindEmoji(item.kind)}
+                </span>
               ))}
             </div>
             <p className="mt-2 text-center text-sm font-bold">양구에서 모은 조각 {unique.length}개</p>
@@ -143,14 +144,14 @@ export function MyYanggu() {
       ) : null}
 
       {palette.length > 0 ? (
-        <Link to="/film" className="mt-6 block overflow-hidden rounded-2xl">
+        <Link to="/yanggu" className="mt-6 block overflow-hidden rounded-2xl">
           <div className="flex h-10">
             {palette.map((swatch) => (
               <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
             ))}
           </div>
-          <div className="flex items-center justify-between bg-[#14120f] px-4 py-3 text-sm font-bold text-white">
-            나만의 양구 컬러 필름
+          <div className="flex items-center justify-between bg-main px-4 py-3 text-sm font-bold text-white">
+            나의 양구 한 장
             <Icon name="right" className="h-4 w-4" />
           </div>
         </Link>

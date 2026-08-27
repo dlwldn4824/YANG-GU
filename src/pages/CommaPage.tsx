@@ -128,7 +128,7 @@ export function CommaPage() {
         </ul>
 
         <Link
-          to="/card#yanggu"
+          to="/yanggu"
           className="mt-8 flex items-center justify-between rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-white"
         >
           쉬었다면, 오늘의 양구를 한 장 남기기

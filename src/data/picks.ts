@@ -3,13 +3,6 @@ import type { CommaMood, CommaSpace, PartnerGeo, PickStory } from '../types'
 /** 양구군청(읍내) 기본 좌표. 위치 권한이 없을 때 사용 */
 export const YANGGU_CENTER = { lat: 38.1096, lng: 127.9897 }
 
-export const YANGGU_BOUNDS = {
-  north: 38.32,
-  south: 38.05,
-  west: 127.88,
-  east: 128.18,
-}
-
 export const PARTNER_GEO: Record<string, PartnerGeo> = {
   parksookeun: { lat: 38.1048, lng: 127.9795 },
   astro: { lat: 38.0755, lng: 127.9872 },

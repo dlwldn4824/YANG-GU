@@ -48,6 +48,8 @@ export type CommaSpace = {
 
 export type YangguKind = 'melon' | 'coffee' | 'bread' | 'flower' | 'family' | 'mountain' | 'apple' | 'food'
 
+export type CompanionId = 'sori' | 'nuri' | 'dari' | 'bom'
+
 export type ColorSwatch = {
   hex: string
   name: string
@@ -85,4 +87,5 @@ export type Citizen = {
   issuedAt: string
   cardNo: string
   expiresAt: string
+  companion?: CompanionId
 }

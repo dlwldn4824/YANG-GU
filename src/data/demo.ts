@@ -1,9 +1,10 @@
 import type { Citizen, ColorSwatch, YangguFragment, YangguKind } from '../types'
 
 const SEED_KEY = 'yanggu-demo-seed'
-const SEED_VERSION = 'issued-v3'
+const SEED_VERSION = 'issued-v4'
 const CITIZEN_KEY = 'yanggu-cyber-citizen'
 const FRAGMENT_KEY = 'yanggu-fragments'
+const STEPS_KEY = 'yanggu-day-steps'
 
 export const DEMO_CITIZEN: Citizen = {
   name: '이지우',
@@ -17,6 +18,7 @@ export const DEMO_CITIZEN: Citizen = {
   design: 4,
   visitCount: '5회이상',
   visitPurpose: '군면회',
+  companion: 'sori',
   emailAgree: true,
   smsAgree: true,
   issuedAt: '2026-02-08',
@@ -238,6 +240,7 @@ export function ensureDemoData() {
     if (localStorage.getItem(SEED_KEY) === SEED_VERSION) return
     localStorage.setItem(CITIZEN_KEY, JSON.stringify(DEMO_CITIZEN))
     localStorage.setItem(FRAGMENT_KEY, JSON.stringify(DEMO_FRAGMENTS))
+    localStorage.setItem(STEPS_KEY, JSON.stringify({ '2026-08-27': 4281 }))
     localStorage.setItem(SEED_KEY, SEED_VERSION)
   } catch {
     // 로컬 저장을 쓸 수 없으면 앱 초기값에서 다시 넣는다

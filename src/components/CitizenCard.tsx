@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Citizen, ColorSwatch, YangguFragment } from '../types'
 import { formatBirth, formatDate } from '../utils'
 import { uniqueColors, uniqueKinds } from '../journal'
+import { kindEmoji } from '../kinds'
 
 type Props = {
   citizen?: Citizen | null
@@ -91,8 +92,9 @@ export function CitizenCard({
                           top: `${(i * 29) % 62}%`,
                           transform: `rotate(${i % 2 === 0 ? -9 : 8}deg)`,
                         }}
+                        title={item.label}
                       >
-                        <img src={item.sticker} alt={item.label} className="h-14 w-14 object-contain drop-shadow" />
+                        {kindEmoji(item.kind)}
                       </span>
                     ))}
                   </div>

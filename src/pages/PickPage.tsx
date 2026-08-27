@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BENEFITS } from '../data'
 import { PARTNER_GEO, WEEKLY_PICKS } from '../data/picks'
 import { formatDistance } from '../geo'
-import { formatTotalMinutes, formatWon, makeLeg, orderByRoute } from '../route'
+import { fetchOsrmTrip } from '../osrm'
+import { formatTotalMinutes, formatWon, makeLeg, makeLegFromRoad, orderByRoute, type RouteLeg } from '../route'
 import { parseKnownSaving } from '../utils'
 import { useOrigin } from '../useOrigin'
 import { PickItinerary, PickRouteMap } from '../components/PickRoute'
@@ -15,6 +16,8 @@ export function PickPage() {
   const story = WEEKLY_PICKS.find((item) => item.id === id)
   const { origin, located, locating, error, locate } = useOrigin()
   const [selected, setSelected] = useState<string | null>(null)
+  const [road, setRoad] = useState<{ key: string; path: [number, number][]; legs: RouteLeg[] } | null>(null)
+  const [failedKey, setFailedKey] = useState<string | null>(null)
 
   const stops = useMemo(() => {
     if (!story) return []
@@ -22,9 +25,46 @@ export function PickPage() {
     return orderByRoute(partners, origin, PARTNER_GEO)
   }, [origin, story])
 
-  const firstLeg = stops[0] ? makeLeg(origin, PARTNER_GEO[stops[0].id]) : null
-  const legs = stops.slice(1).map((stop, i) => makeLeg(PARTNER_GEO[stops[i].id], PARTNER_GEO[stop.id]))
+  const tripKey = `${origin.lat.toFixed(5)},${origin.lng.toFixed(5)}|${stops.map((stop) => stop.id).join(',')}`
+  const live = road?.key === tripKey ? road : null
+  const fallbackFirst = stops[0] ? makeLeg(origin, PARTNER_GEO[stops[0].id]) : null
+  const fallbackLegs = stops.slice(1).map((stop, i) => makeLeg(PARTNER_GEO[stops[i].id], PARTNER_GEO[stop.id]))
+  const firstLeg = live?.legs[0] ?? fallbackFirst
+  const legs = live?.legs.slice(1) ?? fallbackLegs
   const allLegs = firstLeg ? [firstLeg, ...legs] : []
+  const mapPath =
+    live?.path ??
+    (stops.length > 0
+      ? ([origin, ...stops.map((stop) => PARTNER_GEO[stop.id])].map((point) => [
+          point.lat,
+          point.lng,
+        ]) as [number, number][])
+      : undefined)
+
+  useEffect(() => {
+    if (stops.length === 0) return
+    const ac = new AbortController()
+    const key = tripKey
+    const points = [origin, ...stops.map((stop) => PARTNER_GEO[stop.id])]
+    void fetchOsrmTrip(points, ac.signal)
+      .then((trip) => {
+        if (ac.signal.aborted) return
+        if (!trip) {
+          setFailedKey(key)
+          return
+        }
+        setRoad({
+          key,
+          path: trip.path,
+          legs: trip.legs.map((leg) => makeLegFromRoad(leg.meters, leg.durationSec, leg.profile)),
+        })
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+        setFailedKey(key)
+      })
+    return () => ac.abort()
+  }, [origin, stops, tripKey])
   const totalMeters = allLegs.reduce((sum, leg) => sum + leg.meters, 0)
   const totalMinutes = allLegs.reduce((sum, leg) => sum + leg.minutes, 0)
   const totalTaxi = allLegs.reduce((sum, leg) => sum + leg.taxiWon, 0)
@@ -75,7 +115,7 @@ export function PickPage() {
         {error ? <p className="mt-1 text-xs text-gray-500">{error} 양구읍을 기준으로 보여드립니다.</p> : null}
 
         <div className="mt-4">
-          <PickRouteMap origin={origin} stops={stops} selectedId={activeId} onSelect={setSelected} />
+          <PickRouteMap origin={origin} stops={stops} selectedId={activeId} onSelect={setSelected} path={mapPath} />
         </div>
 
         {stops.length > 0 ? (
@@ -101,8 +141,12 @@ export function PickPage() {
           </p>
         ) : null}
         <p className="mt-2 text-center text-[11px] leading-5 text-gray-400">
-          이동비는 직선거리 기준 예상 택시입니다. 1.5km 이내는 도보로 보고 0원입니다. 실제 요금·소요시간과는 다를 수
-          있습니다.
+          {live
+            ? '이동 거리·시간은 실제 도로 경로(OSRM) 기준입니다.'
+            : failedKey === tripKey
+              ? '도로 경로를 불러오지 못해 직선거리로 보여드립니다.'
+              : '도로 경로를 불러오는 중입니다. 직선거리로 먼저 보여드립니다.'}{' '}
+          1.5km 이내는 도보로 보고 이동비 0원입니다. 예상 택시는 참고용이며 실제 요금과 다를 수 있습니다.
         </p>
 
         <div className="mt-6 flex items-center justify-between">
@@ -137,7 +181,7 @@ export function PickPage() {
             </Link>
           )}
           <Link
-            to="/card#yanggu"
+            to="/yanggu"
             className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
           >
             오늘의 양구를 한 장 남기기

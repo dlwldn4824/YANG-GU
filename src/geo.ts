@@ -1,4 +1,3 @@
-import { YANGGU_BOUNDS } from './data/picks'
 import type { GeoPoint } from './types'
 
 export function haversineMeters(a: GeoPoint, b: GeoPoint) {
@@ -16,13 +15,13 @@ export function formatDistance(meters: number) {
   return `${(meters / 1000).toFixed(1)}km`
 }
 
-export function formatWalkMinutes(meters: number) {
-  return formatMinutes(Math.max(1, Math.round(meters / 80)))
+export function formatWalkMinutes(meters: number, minutes?: number) {
+  return formatMinutes(minutes ?? Math.max(1, Math.round(meters / 80)))
 }
 
 /** 시내·군도 기준 시속 약 30km */
-export function formatDriveMinutes(meters: number) {
-  return formatMinutes(Math.max(1, Math.round(meters / 500)))
+export function formatDriveMinutes(meters: number, minutes?: number) {
+  return formatMinutes(minutes ?? Math.max(1, Math.round(meters / 500)))
 }
 
 function formatMinutes(minutes: number) {
@@ -44,7 +43,7 @@ export function driveMinutes(meters: number) {
 export const WALK_OK_METERS = 1500
 
 /**
- * 직선거리 기준 예상 택시.
+ * 도로거리 기준 예상 택시.
  * 기본 4,000원(1.6km) + 130m당 100원. 공식 요금이 아니라 참고용이다.
  */
 export function estimateTaxiWon(meters: number) {
@@ -53,15 +52,6 @@ export function estimateTaxiWon(meters: number) {
   const baseMeters = 1600
   if (meters <= baseMeters) return base
   return base + Math.ceil((meters - baseMeters) / 130) * 100
-}
-
-export function pointToPercent(point: GeoPoint) {
-  const x = ((point.lng - YANGGU_BOUNDS.west) / (YANGGU_BOUNDS.east - YANGGU_BOUNDS.west)) * 100
-  const y = ((YANGGU_BOUNDS.north - point.lat) / (YANGGU_BOUNDS.north - YANGGU_BOUNDS.south)) * 100
-  return {
-    left: `${Math.min(96, Math.max(4, x))}%`,
-    top: `${Math.min(96, Math.max(4, y))}%`,
-  }
 }
 
 export function getCurrentPosition(): Promise<GeoPoint> {

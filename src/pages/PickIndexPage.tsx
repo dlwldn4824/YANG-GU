@@ -22,7 +22,7 @@ export function PickIndexPage() {
                   </span>
                 </div>
                 <div className="p-4">
-                  <p className="text-lg font-extrabold leading-snug">{story.title}</p>
+                  <p className="font-display text-lg font-extrabold leading-snug">{story.title}</p>
                   <p className="mt-1 text-sm text-gray-600">{story.line}</p>
                   <p className="mt-3 text-sm font-bold text-main">
                     {story.partnerIds.length}곳 동선 · 이동시간 · 예상 비용

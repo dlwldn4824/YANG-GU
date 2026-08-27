@@ -31,7 +31,8 @@ export default function App() {
               <Route path="/nearby" element={<NearbyPage />} />
               <Route path="/issue" element={<IssuePage />} />
               <Route path="/card" element={<MyCardPage />} />
-              <Route path="/film" element={<FilmPage />} />
+              <Route path="/yanggu" element={<FilmPage />} />
+              <Route path="/film" element={<Navigate to="/yanggu" replace />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/present" element={<PresentPage />} />

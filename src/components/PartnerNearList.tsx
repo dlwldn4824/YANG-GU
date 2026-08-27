@@ -29,7 +29,7 @@ export function PartnerNearList({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-extrabold">{item.title}</p>
+                  <p className="font-display font-extrabold">{item.title}</p>
                   <p className="mt-0.5 text-xs font-semibold text-sub">{item.category}</p>
                 </div>
                 <p className="shrink-0 text-sm font-bold text-main">{formatDistance(item.meters)}</p>

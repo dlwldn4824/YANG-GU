@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { BENEFITS } from '../data'
 import { PARTNER_GEO, WEEKLY_PICKS } from '../data/picks'
-import { formatDistance, haversineMeters, pointToPercent } from '../geo'
+import { formatDistance, haversineMeters } from '../geo'
+import { fetchOsrmTrip } from '../osrm'
 import { useOrigin } from '../useOrigin'
 import { PartnerNearList } from '../components/PartnerNearList'
 import { PageHeader } from '../components/PageHeader'
+import { YangguMap } from '../components/YangguMap'
 
 export function NearbyPage() {
   const [params] = useSearchParams()
@@ -30,6 +32,32 @@ export function NearbyPage() {
 
   const activeId = items.some((item) => item.id === selected) ? selected : (items[0]?.id ?? null)
   const nearest = items[0]
+  const requestKey = activeId ? `${origin.lat.toFixed(5)},${origin.lng.toFixed(5)}|${activeId}` : ''
+  const fallbackPath = useMemo(() => {
+    if (!activeId || !PARTNER_GEO[activeId]) return undefined
+    const to = PARTNER_GEO[activeId]
+    return [
+      [origin.lat, origin.lng],
+      [to.lat, to.lng],
+    ] as [number, number][]
+  }, [origin, activeId])
+  const [road, setRoad] = useState<{ key: string; path: [number, number][] } | null>(null)
+  const path = road?.key === requestKey ? road.path : fallbackPath
+
+  useEffect(() => {
+    if (!activeId || !PARTNER_GEO[activeId]) return
+    const ac = new AbortController()
+    const key = requestKey
+    void fetchOsrmTrip([origin, PARTNER_GEO[activeId]], ac.signal)
+      .then((trip) => {
+        if (ac.signal.aborted || !trip?.path) return
+        setRoad({ key, path: trip.path })
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+      })
+    return () => ac.abort()
+  }, [origin, activeId, requestKey])
 
   return (
     <>
@@ -60,37 +88,19 @@ export function NearbyPage() {
         </div>
         {error ? <p className="mt-2 text-xs text-gray-500">{error} 양구읍을 기준으로 보여드립니다.</p> : null}
 
-        <div className="relative mt-4 h-64 overflow-hidden rounded-2xl border border-main-100 bg-[linear-gradient(180deg,#dae5d2_0%,#ecf2e8_55%,#f7f3e8_100%)]">
-          <p className="absolute top-3 left-3 z-10 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-main">
-            양구
-          </p>
-          <span
-            className="absolute z-10 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#3b82f6] shadow"
-            style={pointToPercent(origin)}
-            title="현재 위치"
+        <div className="mt-4">
+          <YangguMap
+            origin={origin}
+            pins={items.map((item) => ({
+              id: item.id,
+              point: PARTNER_GEO[item.id],
+              label: item.category,
+            }))}
+            selectedId={activeId}
+            onSelect={setSelected}
+            path={path}
+            badge="양구"
           />
-          {items.map((item) => {
-            const pos = pointToPercent(PARTNER_GEO[item.id])
-            const active = activeId === item.id
-            return (
-              <button
-                key={item.id}
-                type="button"
-                title={item.title}
-                onClick={() => setSelected(item.id)}
-                className={`absolute z-10 -translate-x-1/2 -translate-y-full ${active ? 'scale-110' : ''}`}
-                style={pos}
-              >
-                <span
-                  className={`block rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white shadow ${
-                    active ? 'bg-point' : 'bg-main'
-                  }`}
-                >
-                  {item.category}
-                </span>
-              </button>
-            )
-          })}
         </div>
 
         <div className="mt-5">

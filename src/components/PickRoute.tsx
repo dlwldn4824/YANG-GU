@@ -1,71 +1,37 @@
 import { Link } from 'react-router-dom'
 import { PARTNER_GEO } from '../data/picks'
-import { pointToPercent } from '../geo'
 import { formatWon, type RouteLeg, type RouteStop, areaHint } from '../route'
 import { mapUrl, parseKnownSaving, usageBadge } from '../utils'
 import type { GeoPoint } from '../types'
-
-function xy(point: GeoPoint) {
-  const pos = pointToPercent(point)
-  return { x: parseFloat(pos.left), y: parseFloat(pos.top) }
-}
+import { YangguMap } from './YangguMap'
 
 export function PickRouteMap({
   origin,
   stops,
   selectedId,
   onSelect,
+  path,
 }: {
   origin: GeoPoint
   stops: RouteStop[]
   selectedId: string | null
   onSelect: (id: string) => void
+  path?: [number, number][]
 }) {
-  const points = [xy(origin), ...stops.map((stop) => xy(PARTNER_GEO[stop.id]))]
-  const path = points.map((point, i) => `${i === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ')
-
   return (
-    <div className="relative h-72 overflow-hidden rounded-2xl border border-main-100 bg-[linear-gradient(180deg,#dae5d2_0%,#ecf2e8_55%,#f7f3e8_100%)]">
-      <p className="absolute top-3 left-3 z-10 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-main">
-        추천 동선
-      </p>
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
-        {points.length > 1 ? (
-          <path
-            d={path}
-            fill="none"
-            stroke="#447e1d"
-            strokeWidth="1.2"
-            strokeDasharray="2.4 1.6"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        ) : null}
-      </svg>
-      <span
-        className="absolute z-10 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#3b82f6] shadow"
-        style={pointToPercent(origin)}
-        title="출발"
-      />
-      {stops.map((stop, i) => {
-        const pos = pointToPercent(PARTNER_GEO[stop.id])
-        const active = selectedId === stop.id
-        return (
-          <button
-            key={stop.id}
-            type="button"
-            title={stop.title}
-            onClick={() => onSelect(stop.id)}
-            className={`absolute z-20 grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-[11px] font-extrabold text-white shadow ${
-              active ? 'bg-point' : 'bg-main'
-            }`}
-            style={pos}
-          >
-            {i + 1}
-          </button>
-        )
-      })}
-    </div>
+    <YangguMap
+      origin={origin}
+      pins={stops.map((stop, i) => ({
+        id: stop.id,
+        point: PARTNER_GEO[stop.id],
+        label: stop.title,
+        number: i + 1,
+      }))}
+      selectedId={selectedId}
+      onSelect={onSelect}
+      path={path}
+      badge="추천 동선"
+    />
   )
 }
 
@@ -124,7 +90,7 @@ export function PickItinerary({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-extrabold">{stop.title}</p>
+                    <p className="font-display font-extrabold">{stop.title}</p>
                     <p className="mt-0.5 text-xs text-gray-500">
                       {stop.category} · {areaHint(stop.location)}
                     </p>

@@ -70,10 +70,10 @@ export function MyCardPage() {
                     사이버 군민증 인쇄 <Icon name="printer" className="h-5 w-5" />
                   </button>
                   <Link
-                    to="/film"
+                    to="/yanggu"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-bold text-gray-700"
                   >
-                    나만의 양구 컬러 필름 <Icon name="right" className="h-5 w-5" />
+                    나의 양구 한 장 <Icon name="right" className="h-5 w-5" />
                   </Link>
                 </>
               ) : (
