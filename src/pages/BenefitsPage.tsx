@@ -33,7 +33,7 @@ export function BenefitsPage() {
 
   return (
     <>
-      <PageHeader kicker="BENEFIT" title="양구사랑 사이버 군민증 혜택" desc="다양한 할인 혜택을 확인해보세요!" />
+      <PageHeader kicker="혜택" title="양구사랑 사이버 군민증 혜택" desc="다양한 할인 혜택을 확인해보세요!" />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-5 grid gap-3 sm:grid-cols-2">
           <Link

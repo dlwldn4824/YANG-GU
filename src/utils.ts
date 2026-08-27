@@ -60,14 +60,6 @@ export function formatDuration(ms: number) {
   return `${hours}시간 ${rest}분`
 }
 
-export function categoryEmoji(category: Benefit['category']) {
-  if (category === '카페') return '☕'
-  if (category === '관광지') return '🏞'
-  if (category === '체험') return '🎨'
-  if (category === '숙박') return '🏡'
-  return '🎁'
-}
-
 /** 입장료처럼 원 단위가 명시된 혜택만 절약액을 계산한다. */
 export function parseKnownSaving(discount: string) {
   const match = discount.match(/기존\s*([\d,]+)원\s*→\s*사이버군민\s*([\d,]+)원/)

@@ -60,7 +60,7 @@ export function IssuePage() {
   if (citizen) {
     return (
       <>
-        <PageHeader kicker="ISSUE" title="사이버 군민증 발급" desc="이미 발급된 군민증이 있습니다." />
+        <PageHeader kicker="발급" title="사이버 군민증 발급" desc="이미 발급된 군민증이 있습니다." />
         <main className="mx-auto max-w-lg px-4 py-16 text-center">
           <h2 className="text-2xl font-extrabold">이미 발급된 군민증이 있습니다</h2>
           <p className="mt-3 text-gray-600">{citizen.name} 님의 사이버 군민증을 내 군민증에서 확인할 수 있습니다.</p>
@@ -137,7 +137,7 @@ export function IssuePage() {
 
   return (
     <>
-      <PageHeader kicker="ISSUE" title="사이버 군민증 발급" desc="* 표시는 필수 입력 사항입니다." />
+      <PageHeader kicker="발급" title="사이버 군민증 발급" desc="* 표시는 필수 입력 사항입니다." />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <ol className="grid grid-cols-3 gap-2 text-center text-xs font-bold">
           {['기본 정보', '카드 디자인', '거주·동의'].map((label, i) => (

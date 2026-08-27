@@ -22,7 +22,7 @@ export function LoginPage() {
 
   return (
     <>
-      <PageHeader kicker="LOGIN" title="로그인" desc="발급 시 등록한 이메일로 군민증을 불러옵니다." />
+      <PageHeader kicker="로그인" title="로그인" desc="발급 시 등록한 이메일로 군민증을 불러옵니다." />
       <main className="mx-auto max-w-md px-4 py-8">
         <form onSubmit={onSubmit} className="space-y-4">
           <input

@@ -35,10 +35,10 @@ export function CommaPage() {
 
   return (
     <>
-      <PageHeader kicker="COMMA" title="군민 쉼표" desc="양구에서 서두르지 않아도 되는 이유" />
+      <PageHeader kicker="쉼표" title="군민 쉼표" desc="양구에서 서두르지 않아도 되는 이유" />
       <main className="mx-auto max-w-3xl px-4 py-6">
         <section className="rounded-2xl bg-main-50 px-5 py-6">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-sub">TODAY</p>
+          <p className="text-sm font-bold text-sub">오늘</p>
           <h2 className="mt-2 text-xl font-extrabold">오늘은 양구에서 조금 천천히</h2>
           <p className="mt-2 text-sm leading-6 text-gray-600">
             지금 주변에 오래 머물기 좋은 군민 제휴 공간이 있어요. 걷거나 스탬프를 모으지 않아도 됩니다. 앉아 있는 시간이
@@ -47,7 +47,7 @@ export function CommaPage() {
         </section>
 
         <div className="mt-5 flex items-center justify-between">
-          <p className="text-sm font-bold">📍 {located ? '현재 위치' : '양구읍 기준'}</p>
+          <p className="text-sm font-bold">{located ? '현재 위치' : '양구읍 기준'}</p>
           <button
             type="button"
             onClick={() => void locate()}
@@ -65,7 +65,7 @@ export function CommaPage() {
               key={item.id}
               active={mood === item.id}
               onClick={() => setMood(item.id)}
-              label={`${item.emoji} ${item.label}`}
+              label={item.label}
             />
           ))}
         </div>
@@ -105,9 +105,7 @@ export function CommaPage() {
 
                 {space.sample && space.shop && space.shopMeters !== undefined ? (
                   <div className="mt-4 rounded-2xl border border-dashed border-main-200 p-4">
-                    <p className="text-sm font-extrabold">
-                      {space.sample.emoji} {space.sample.name}
-                    </p>
+                    <p className="text-sm font-extrabold">{space.sample.name}</p>
                     <p className="mt-1 text-sm text-gray-600">{space.sample.line}</p>
                     <p className="mt-3 text-sm font-bold">맛있는데? 이거 어디서 사요?</p>
                     <p className="mt-1 text-sm text-gray-600">

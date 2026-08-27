@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import type { Citizen, YangguFragment } from '../types'
+import type { Citizen, ColorSwatch, YangguFragment } from '../types'
 import { formatBirth, formatDate } from '../utils'
-import { uniqueKinds } from '../journal'
+import { uniqueColors, uniqueKinds } from '../journal'
 
 type Props = {
   citizen?: Citizen | null
@@ -27,6 +27,7 @@ export function CitizenCard({
   const cardDesign = citizen?.design ?? design ?? 4
   const lightText = cardDesign === 1
   const unique = uniqueKinds(fragments)
+  const palette = uniqueColors(fragments)
 
   const toggle = () => {
     if (onToggle) onToggle()
@@ -74,12 +75,12 @@ export function CitizenCard({
           ) : null}
           {showCollection ? (
             <div className="no-print absolute inset-0 bg-[#14260a]/90 p-5 text-left text-white">
-              <p className="text-[10px] font-bold tracking-[0.22em] text-white/70">YANGU CYBER CITIZEN</p>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-white/70">사이버 군민증</p>
               {unique.length === 0 ? (
                 <p className="mt-16 text-sm font-bold leading-6">아직 기록된 양구가 없습니다.</p>
               ) : (
                 <>
-                  <p className="mt-3 text-lg font-extrabold">MY YANGU {new Date().getFullYear()}</p>
+                  <p className="mt-3 text-lg font-extrabold">{new Date().getFullYear()}년의 양구</p>
                   <div className="relative mt-6 h-[58%]">
                     {unique.map((item, i) => (
                       <span
@@ -95,7 +96,8 @@ export function CitizenCard({
                       </span>
                     ))}
                   </div>
-                  <p className="absolute right-5 bottom-5 text-xs font-bold">양구에서 모은 조각 {unique.length}개</p>
+                  <p className="absolute right-5 bottom-12 text-xs font-bold">양구에서 모은 조각 {unique.length}개</p>
+                  {palette.length > 0 ? <PaletteStrip colors={palette} /> : null}
                 </>
               )}
             </div>
@@ -105,6 +107,16 @@ export function CitizenCard({
       <p className="no-print mt-3 text-center text-xs text-gray-500">
         {showCollection ? '카드를 누르면 여행이 쌓인 뒷면이 보여요' : '카드를 눌러 뒷면을 확인하세요'}
       </p>
+    </div>
+  )
+}
+
+function PaletteStrip({ colors }: { colors: ColorSwatch[] }) {
+  return (
+    <div className="absolute inset-x-5 bottom-5 flex h-2.5 overflow-hidden rounded-full">
+      {colors.map((swatch) => (
+        <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} title={swatch.name} />
+      ))}
     </div>
   )
 }

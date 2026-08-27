@@ -25,7 +25,6 @@ export type PartnerGeo = GeoPoint
 export type PickStory = {
   id: string
   weekLabel: string
-  emoji: string
   title: string
   line: string
   image: string
@@ -41,7 +40,6 @@ export type CommaSpace = {
   vibe: string
   stayPerk: string
   sample?: {
-    emoji: string
     name: string
     line: string
     shopId: string
@@ -50,10 +48,14 @@ export type CommaSpace = {
 
 export type YangguKind = 'melon' | 'coffee' | 'bread' | 'flower' | 'family' | 'mountain' | 'apple' | 'food'
 
+export type ColorSwatch = {
+  hex: string
+  name: string
+}
+
 export type YangguFragment = {
   id: string
   kind: YangguKind
-  emoji: string
   label: string
   sticker: string
   capturedAt: string
@@ -62,6 +64,8 @@ export type YangguFragment = {
   title: string
   lines: string[]
   tag: string
+  colors?: ColorSwatch[]
+  thumb?: string
 }
 
 export type Citizen = {

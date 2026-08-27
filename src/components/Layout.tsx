@@ -3,32 +3,39 @@ import { useAuth } from '../auth'
 import { Icon } from './Icon'
 import type { ComponentProps } from 'react'
 
-const DESKTOP_NAV: { to: string; label: string; end: boolean }[] = [
-  { to: '/', label: '소개', end: true },
-  { to: '/comma', label: '쉼표', end: false },
-  { to: '/benefits', label: '혜택', end: false },
-  { to: '/card', label: '내 군민증', end: false },
-  { to: '/issue', label: '발급', end: false },
-  { to: '/faq', label: 'FAQ', end: false },
+const DESKTOP_NAV: { to: string; label: string }[] = [
+  { to: '/', label: '홈' },
+  { to: '/pick', label: 'PICK' },
+  { to: '/comma', label: '쉼표' },
+  { to: '/film', label: '필름' },
+  { to: '/card', label: '내 군민증' },
+  { to: '/benefits', label: '혜택' },
 ]
 
-const MOBILE_NAV: { to: string; label: string; icon: ComponentProps<typeof Icon>['name']; end: boolean }[] = [
-  { to: '/', label: '소개', icon: 'leaf', end: true },
-  { to: '/comma', label: '쉼표', icon: 'clock', end: false },
-  { to: '/benefits', label: '혜택', icon: 'percent', end: false },
-  { to: '/card', label: '내 군민증', icon: 'id', end: false },
-  { to: '/issue', label: '발급', icon: 'add', end: false },
+const MOBILE_NAV: { to: string; label: string; icon: ComponentProps<typeof Icon>['name'] }[] = [
+  { to: '/', label: '홈', icon: 'leaf' },
+  { to: '/pick', label: 'PICK', icon: 'gift' },
+  { to: '/comma', label: '쉼표', icon: 'clock' },
+  { to: '/film', label: '필름', icon: 'scan' },
+  { to: '/card', label: '내 군민증', icon: 'id' },
 ]
+
+function isNavActive(pathname: string, to: string) {
+  if (to === '/') return pathname === '/'
+  if (to === '/pick') return pathname === '/pick' || pathname.startsWith('/pick/')
+  return pathname === to
+}
 
 export function Layout() {
   const { citizen, logout } = useAuth()
   const location = useLocation()
-  const hideHero = location.pathname === '/present'
+  const hideChrome = location.pathname === '/present'
+  const isFilm = location.pathname === '/film'
 
-  if (hideHero) return <Outlet />
+  if (hideChrome) return <Outlet />
 
   return (
-    <div className="min-h-dvh bg-white pb-20 lg:pb-0">
+    <div className={`min-h-dvh pb-20 lg:pb-0 ${isFilm ? 'bg-[#14120f]' : 'bg-white'}`}>
       <header className="sticky top-0 z-40 border-b border-main-100 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <NavLink to="/" className="flex items-center gap-2">
@@ -39,10 +46,10 @@ export function Layout() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm font-semibold ${
-                    isActive ? 'bg-main-50 text-main' : 'text-gray-600 hover:bg-gray-50'
+                end={item.to === '/'}
+                className={() =>
+                  `rounded-full px-3.5 py-2 text-sm font-semibold ${
+                    isNavActive(location.pathname, item.to) ? 'bg-main-50 text-main' : 'text-gray-600 hover:bg-gray-50'
                   }`
                 }
               >
@@ -81,7 +88,7 @@ export function Layout() {
 
       <Outlet />
 
-      <SiteFooter />
+      {isFilm ? null : <SiteFooter />}
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-main-100 bg-white/95 backdrop-blur lg:hidden">
         <div className="grid grid-cols-5 px-1 pb-[env(safe-area-inset-bottom)]">
@@ -89,10 +96,10 @@ export function Layout() {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
+              end={item.to === '/'}
+              className={() =>
                 `flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold ${
-                  isActive ? 'text-main' : 'text-gray-400'
+                  isNavActive(location.pathname, item.to) ? 'text-main' : 'text-gray-400'
                 }`
               }
             >
@@ -127,7 +134,16 @@ function SiteFooter() {
     <footer className="mt-16 bg-main-50 px-4 py-10 text-sm text-gray-600">
       <div className="mx-auto max-w-6xl">
         <p className="font-extrabold text-main">양구 DMO</p>
-        <div className="mt-4 space-y-1 leading-relaxed">
+        <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-main">
+          <NavLink to="/pick">PICK</NavLink>
+          <NavLink to="/comma">쉼표</NavLink>
+          <NavLink to="/film">필름</NavLink>
+          <NavLink to="/card">내 군민증</NavLink>
+          <NavLink to="/benefits">혜택</NavLink>
+          <NavLink to="/issue">발급</NavLink>
+          <NavLink to="/faq">FAQ</NavLink>
+        </nav>
+        <div className="mt-6 space-y-1 leading-relaxed">
           <p>
             <b className="text-ink">상호명</b> 사회적기업 (주)공감만세 · <b className="text-ink">대표</b> 고두환
           </p>

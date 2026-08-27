@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { daySpan, todayFragments, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
+import { daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { readPhotoAsFragment } from '../vision'
 import { formatDate, formatDuration, formatMonthLabel, localDateIso } from '../utils'
 import { Icon } from './Icon'
@@ -15,6 +15,7 @@ export function MyYanggu() {
   const months = visitMonths(fragments)
   const unique = uniqueKinds(fragments)
   const visits = visitDays(fragments)
+  const palette = uniqueColors(fragments)
 
   const onFile = async (file?: File) => {
     if (!file) return
@@ -32,7 +33,7 @@ export function MyYanggu() {
 
   return (
     <section id="yanggu" className="scroll-mt-24">
-      <p className="text-[11px] font-bold tracking-[0.18em] text-sub">MY YANGU</p>
+      <p className="text-sm font-bold text-sub">나의 양구</p>
       <h2 className="mt-1 text-2xl font-extrabold">나의 양구</h2>
       <p className="mt-2 text-sm text-gray-600">할 일을 채우는 대신, 이미 한 하루가 군민증에 남습니다.</p>
 
@@ -72,18 +73,22 @@ export function MyYanggu() {
             </div>
           </div>
           <p className="mt-4 text-sm font-semibold text-white/80">{latest.tag}</p>
+          {latest.colors && latest.colors.length > 0 ? (
+            <div className="mt-4 flex h-3 overflow-hidden rounded-full">
+              {latest.colors.map((swatch) => (
+                <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} title={swatch.name} />
+              ))}
+            </div>
+          ) : null}
         </article>
       ) : null}
 
       {today.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-main-100 p-5">
           <p className="text-sm font-bold text-sub">오늘 양구에서 가져가는 것</p>
-          <p className="mt-3 text-2xl leading-relaxed">{today.map((item) => item.emoji).join(' ')}</p>
-          <ul className="mt-2 space-y-1 text-sm text-gray-600">
+          <ul className="mt-3 space-y-1 text-sm text-gray-600">
             {uniqueKinds(today).map((item) => (
-              <li key={item.id}>
-                {item.emoji} {item.label}
-              </li>
+              <li key={item.id}>{item.label}</li>
             ))}
           </ul>
           <p className="mt-3 font-extrabold">
@@ -94,7 +99,7 @@ export function MyYanggu() {
       ) : null}
 
       <div className="mt-8">
-        <p className="text-sm font-bold tracking-[0.2em] text-main">MY YANGU {new Date().getFullYear()}</p>
+        <p className="text-sm font-bold text-main">{new Date().getFullYear()}년의 양구</p>
         {unique.length === 0 ? (
           <p className="mt-4 text-sm text-gray-500">아직 기록된 양구가 없습니다. 사진 한 장이 첫 조각이 됩니다.</p>
         ) : (
@@ -128,18 +133,28 @@ export function MyYanggu() {
             {months.map(([month, list]) => (
               <li key={month} className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3">
                 <span className="font-bold">{formatMonthLabel(`${month}-01`)}</span>
-                <span className="text-lg tracking-widest">{uniqueKinds(list).map((item) => item.emoji).join(' ')}</span>
+                <span className="text-sm font-semibold text-gray-600">
+                  {uniqueKinds(list).map((item) => item.label).join(' · ')}
+                </span>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
 
-      <p className="mt-8 text-center">
-        <Link to="/comma" className="text-sm font-bold text-main">
-          남기기 전에 조금 더 머물러도 좋아요 <Icon name="right" className="inline h-4 w-4" />
+      {palette.length > 0 ? (
+        <Link to="/film" className="mt-6 block overflow-hidden rounded-2xl">
+          <div className="flex h-10">
+            {palette.map((swatch) => (
+              <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
+            ))}
+          </div>
+          <div className="flex items-center justify-between bg-[#14120f] px-4 py-3 text-sm font-bold text-white">
+            나만의 양구 컬러 필름
+            <Icon name="right" className="h-4 w-4" />
+          </div>
         </Link>
-      </p>
+      ) : null}
     </section>
   )
 }

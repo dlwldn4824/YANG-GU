@@ -17,7 +17,42 @@ export function formatDistance(meters: number) {
 }
 
 export function formatWalkMinutes(meters: number) {
-  return `${Math.max(1, Math.round(meters / 80))}분`
+  return formatMinutes(Math.max(1, Math.round(meters / 80)))
+}
+
+/** 시내·군도 기준 시속 약 30km */
+export function formatDriveMinutes(meters: number) {
+  return formatMinutes(Math.max(1, Math.round(meters / 500)))
+}
+
+function formatMinutes(minutes: number) {
+  if (minutes < 60) return `${minutes}분`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest ? `${hours}시간 ${rest}분` : `${hours}시간`
+}
+
+export function walkMinutes(meters: number) {
+  return Math.max(1, Math.round(meters / 80))
+}
+
+export function driveMinutes(meters: number) {
+  return Math.max(1, Math.round(meters / 500))
+}
+
+/** 도보로 무리 없는 거리. 이내면 이동비 0원 */
+export const WALK_OK_METERS = 1500
+
+/**
+ * 직선거리 기준 예상 택시.
+ * 기본 4,000원(1.6km) + 130m당 100원. 공식 요금이 아니라 참고용이다.
+ */
+export function estimateTaxiWon(meters: number) {
+  if (meters < WALK_OK_METERS) return 0
+  const base = 4000
+  const baseMeters = 1600
+  if (meters <= baseMeters) return base
+  return base + Math.ceil((meters - baseMeters) / 130) * 100
 }
 
 export function pointToPercent(point: GeoPoint) {

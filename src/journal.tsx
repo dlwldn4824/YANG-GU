@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import { DEMO_FRAGMENTS } from './data/demo'
-import type { YangguFragment } from './types'
+import type { ColorSwatch, YangguFragment } from './types'
 import { localDateIso } from './utils'
 
 const KEY = 'yanggu-fragments'
@@ -85,4 +85,33 @@ export function daySpan(fragments: YangguFragment[]) {
   if (fragments.length === 0) return 0
   const times = fragments.map((item) => new Date(item.capturedAt).getTime())
   return Math.max(...times) - Math.min(...times)
+}
+
+export function filmFrames(fragments: YangguFragment[]) {
+  return [...fragments].sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
+}
+
+export function uniqueColors(fragments: YangguFragment[]) {
+  const out: ColorSwatch[] = []
+  for (const item of filmFrames(fragments)) {
+    for (const swatch of item.colors ?? []) {
+      if (!out.some((prev) => hexDistance(prev.hex, swatch.hex) < 42)) out.push(swatch)
+    }
+  }
+  return out
+}
+
+function hexDistance(a: string, b: string) {
+  const pa = hexToRgb(a)
+  const pb = hexToRgb(b)
+  return Math.hypot(pa.r - pb.r, pa.g - pb.g, pa.b - pb.b)
+}
+
+function hexToRgb(hex: string) {
+  const raw = hex.replace('#', '')
+  return {
+    r: Number.parseInt(raw.slice(0, 2), 16),
+    g: Number.parseInt(raw.slice(2, 4), 16),
+    b: Number.parseInt(raw.slice(4, 6), 16),
+  }
 }

@@ -38,8 +38,7 @@ export const PARTNER_GEO: Record<string, PartnerGeo> = {
 export const WEEKLY_PICKS: PickStory[] = [
   {
     id: 'season',
-    weekLabel: '이번 주 양구 에디터 PICK',
-    emoji: '🍈',
+    weekLabel: '이번 주 PICK',
     title: '요즘 멜론이 가장 맛있을 때',
     line: '집에 가기 전 사가기 좋은 곳',
     image: '/assets/benefits/farm.jpg',
@@ -47,8 +46,7 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
   {
     id: 'bread',
-    weekLabel: '이번 주 양구 에디터 PICK',
-    emoji: '🥐',
+    weekLabel: '이번 주 PICK',
     title: '양구 오면 이 빵 많이 사가요',
     line: '오늘 4시 전에 가는 걸 추천',
     image: '/assets/benefits/baekkop.jpg',
@@ -56,8 +54,7 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
   {
     id: 'lunch',
-    weekLabel: '이번 주 양구 에디터 PICK',
-    emoji: '🍲',
+    weekLabel: '이번 주 PICK',
     title: '양구군 직원들의 점심 PICK',
     line: '실제 점심시간에 자주 찾는 메뉴',
     image: '/assets/benefits/yangguga.jpg',
@@ -65,8 +62,7 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
   {
     id: 'linger',
-    weekLabel: '이번 주 양구 에디터 PICK',
-    emoji: '☕',
+    weekLabel: '이번 주 PICK',
     title: '오늘 같은 더운 날 오래 있기 좋은 곳',
     line: '시원하고 좌석 넓은 제휴 카페',
     image: '/assets/benefits/terrace.jpg',
@@ -75,11 +71,11 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
 ]
 
-export const COMMA_MOODS: { id: CommaMood; emoji: string; label: string }[] = [
-  { id: 'book', emoji: '📖', label: '책 읽기 좋은 카페' },
-  { id: 'window', emoji: '🪟', label: '창밖 보기 좋은 곳' },
-  { id: 'family', emoji: '💬', label: '가족과 이야기하기 좋은 곳' },
-  { id: 'walk', emoji: '🌿', label: '산책 후 쉬기 좋은 곳' },
+export const COMMA_MOODS: { id: CommaMood; label: string }[] = [
+  { id: 'book', label: '책 읽기 좋은 카페' },
+  { id: 'window', label: '창밖 보기 좋은 곳' },
+  { id: 'family', label: '가족과 이야기하기 좋은 곳' },
+  { id: 'walk', label: '산책 후 쉬기 좋은 곳' },
 ]
 
 export const COMMA_SPACES: CommaSpace[] = [
@@ -89,7 +85,6 @@ export const COMMA_SPACES: CommaSpace[] = [
     vibe: '시원하고 창밖을 오래 보기 좋아요',
     stayPerk: '음료 주문 + 사이버 군민증 → 양구 엽서 제공',
     sample: {
-      emoji: '🍈',
       name: '양구 멜론 시식',
       line: '카페에서 천천히 쉬다 멜론 한 조각을 맛봐요',
       shopId: 'farm',
@@ -107,7 +102,6 @@ export const COMMA_SPACES: CommaSpace[] = [
     vibe: '해안 풍경을 보고 들어와 쉬기 좋아요',
     stayPerk: '음료 주문 + 사이버 군민증 → 두 번째 음료 혜택',
     sample: {
-      emoji: '🍡',
       name: '양구 간식 샘플',
       line: '쉬면서 지역 간식을 먼저 맛봐요',
       shopId: 'hangwa',

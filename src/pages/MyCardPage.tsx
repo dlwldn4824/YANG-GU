@@ -2,13 +2,10 @@ import { Link, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { CitizenCard } from '../components/CitizenCard'
-import { BenefitCard } from '../components/BenefitCard'
-import { PickStories } from '../components/PickStories'
 import { MyYanggu } from '../components/MyYanggu'
 import { Icon } from '../components/Icon'
 import { useAuth } from '../auth'
 import { useJournal } from '../journal'
-import { BENEFITS } from '../data'
 import { formatDate } from '../utils'
 
 export function MyCardPage() {
@@ -24,9 +21,9 @@ export function MyCardPage() {
   return (
     <>
       <PageHeader
-        kicker="MY CARD"
+        kicker="내 군민증"
         title={citizen ? '내 양구사랑 사이버 군민증' : '내 양구사랑 사이버 군민증을 발급 받아보세요!'}
-        desc="양구사랑 사이버 군민증을 발급받고, 다양한 혜택을 누려보세요"
+        desc="카드를 제시하고, 오늘의 양구를 기록하세요"
       />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <section className="grid items-start gap-10 lg:grid-cols-[320px_1fr]">
@@ -72,13 +69,12 @@ export function MyCardPage() {
                   >
                     사이버 군민증 인쇄 <Icon name="printer" className="h-5 w-5" />
                   </button>
-                  <a
-                    href={`/assets/cards/front${citizen.design}.jpg`}
-                    download="yanggu-cyber-card.jpg"
+                  <Link
+                    to="/film"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-bold text-gray-700"
                   >
-                    이미지 다운로드 <Icon name="download" className="h-5 w-5" />
-                  </a>
+                    나만의 양구 컬러 필름 <Icon name="right" className="h-5 w-5" />
+                  </Link>
                 </>
               ) : (
                 <Link
@@ -95,25 +91,6 @@ export function MyCardPage() {
         <div className="mt-16">
           <MyYanggu />
         </div>
-
-        <div className="mt-16">
-          <PickStories />
-        </div>
-
-        <section className="mt-16">
-          <h3 className="text-center text-2xl font-extrabold text-sub">양구사랑 사이버 군민증 혜택</h3>
-          <p className="mt-3 text-center text-gray-600">다양한 할인 혜택을 확인해보세요!</p>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {BENEFITS.slice(0, 6).map((item) => (
-              <BenefitCard key={item.id} benefit={item} />
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Link to="/benefits" className="inline-flex items-center font-bold text-main">
-              혜택 전체 보기 <Icon name="right" className="h-5 w-5" />
-            </Link>
-          </div>
-        </section>
       </main>
     </>
   )

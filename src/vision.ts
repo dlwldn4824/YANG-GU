@@ -1,9 +1,8 @@
 import { formatClock, localDateIso } from './utils'
-import type { YangguFragment, YangguKind } from './types'
+import type { ColorSwatch, YangguFragment, YangguKind } from './types'
 
 type KindMeta = {
   kind: YangguKind
-  emoji: string
   label: string
   lines: string[]
 }
@@ -11,49 +10,41 @@ type KindMeta = {
 const KINDS: KindMeta[] = [
   {
     kind: 'melon',
-    emoji: '🍈',
     label: '멜론',
     lines: ['오늘 양구에서 만난 건', '여름 끝자락의 멜론.', '집에 가져갈 양구 하나가 생겼다.'],
   },
   {
     kind: 'coffee',
-    emoji: '☕',
     label: '커피',
     lines: ['서두르지 않아도 되는 오후.', '잔이 식을 때까지 양구에 앉아 있었다.'],
   },
   {
     kind: 'bread',
-    emoji: '🥐',
     label: '빵',
     lines: ['집에 가져가는 양구가 하나 더 늘었다.', '포장된 온기가 가방 안에 있다.'],
   },
   {
     kind: 'flower',
-    emoji: '🌼',
     label: '꽃',
     lines: ['길을 걷다 발길을 멈춘 자리.', '양구의 꽃 한 송이가 남았다.'],
   },
   {
     kind: 'family',
-    emoji: '👨‍👩‍👧',
     label: '가족',
     lines: ['오늘 양구에서 마주 앉은 얼굴들.', '말보다 오래 남은 시간이 있다.'],
   },
   {
     kind: 'mountain',
-    emoji: '🏔️',
     label: '산',
     lines: ['멀리 보이는 능선이 오늘은 가까웠다.', '양구의 공기가 사진 안에 있다.'],
   },
   {
     kind: 'apple',
-    emoji: '🍎',
     label: '사과',
     lines: ['손에 들어온 양구의 계절.', '아삭한 한 입이 오늘을 기억한다.'],
   },
   {
     kind: 'food',
-    emoji: '🍲',
     label: '식사',
     lines: ['양구에서 천천히 비운 그릇.', '배부른 오후가 남았다.'],
   },
@@ -64,6 +55,8 @@ export async function readPhotoAsFragment(file: File): Promise<YangguFragment> {
   const sample = sampleImage(image)
   const meta = pickKind(sample)
   const sticker = makeSticker(image, sample)
+  const colors = extractPalette(image)
+  const thumb = makeThumb(image)
   const now = new Date()
   const date = localDateIso(now)
   const clock = formatClock(now)
@@ -74,7 +67,6 @@ export async function readPhotoAsFragment(file: File): Promise<YangguFragment> {
   return {
     id: `${now.getTime()}`,
     kind: meta.kind,
-    emoji: meta.emoji,
     label: meta.label,
     sticker,
     capturedAt: now.toISOString(),
@@ -82,7 +74,9 @@ export async function readPhotoAsFragment(file: File): Promise<YangguFragment> {
     area: '양구읍',
     title: `${month}월 ${day}일 · 양구`,
     lines: meta.lines,
-    tag: `${meta.emoji} ${season} · 양구읍 · ${clock}`,
+    tag: `${season} · 양구읍 · ${clock}`,
+    colors,
+    thumb,
   }
 }
 
@@ -253,4 +247,75 @@ function rgbToHsl(r: number, g: number, b: number) {
   else if (max === g) h = (b - r) / d + 2
   else h = (r - g) / d + 4
   return { h: h * 60, s, l }
+}
+
+export function extractPalette(image: HTMLImageElement): ColorSwatch[] {
+  const size = 48
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return []
+  ctx.drawImage(image, 0, 0, size, size)
+  const data = ctx.getImageData(0, 0, size, size).data
+  const bins = Array.from({ length: 18 }, () => ({ r: 0, g: 0, b: 0, n: 0 }))
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i] / 255
+    const g = data[i + 1] / 255
+    const b = data[i + 2] / 255
+    const hsl = rgbToHsl(r, g, b)
+    if (hsl.s < 0.16 || hsl.l < 0.12 || hsl.l > 0.92) continue
+    const bin = Math.min(17, Math.floor(hsl.h / 20))
+    bins[bin].r += data[i]
+    bins[bin].g += data[i + 1]
+    bins[bin].b += data[i + 2]
+    bins[bin].n += 1
+  }
+  return bins
+    .map((bin, i) => ({ ...bin, hue: i * 20 + 10 }))
+    .filter((bin) => bin.n >= 8)
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 3)
+    .map((bin) => {
+      const r = Math.round(bin.r / bin.n)
+      const g = Math.round(bin.g / bin.n)
+      const b = Math.round(bin.b / bin.n)
+      const hsl = rgbToHsl(r / 255, g / 255, b / 255)
+      return {
+        hex: rgbToHex(r, g, b),
+        name: colorName(hsl.h, hsl.s, hsl.l),
+      }
+    })
+}
+
+function makeThumb(image: HTMLImageElement) {
+  const width = 240
+  const height = 160
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+  const scale = Math.max(width / image.width, height / image.height)
+  const w = image.width * scale
+  const h = image.height * scale
+  ctx.drawImage(image, (width - w) / 2, (height - h) / 2, w, h)
+  return canvas.toDataURL('image/jpeg', 0.55)
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('')}`
+}
+
+function colorName(h: number, s: number, l: number) {
+  if (s < 0.14) return l > 0.7 ? '양구 빛' : l < 0.28 ? '밤 그림자' : '흙길'
+  if (h < 16 || h >= 345) return l > 0.55 ? '석류 분홍' : '양구 사과'
+  if (h < 38) return '노을 주황'
+  if (h < 58) return l > 0.55 ? '햇살' : '한과 갈색'
+  if (h < 90) return '멜론 연두'
+  if (h < 140) return l > 0.45 ? '양구 녹' : '펀치볼 숲'
+  if (h < 180) return '파로호'
+  if (h < 230) return '하늘'
+  if (h < 280) return '저녁 보랏빛'
+  return '양구 꽃'
 }

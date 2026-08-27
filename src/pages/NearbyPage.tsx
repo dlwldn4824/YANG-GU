@@ -34,14 +34,14 @@ export function NearbyPage() {
   return (
     <>
       <PageHeader
-        kicker="NEARBY"
+        kicker="주변"
         title={story ? story.title : '내 주변 사이버 군민 혜택'}
         desc={story ? story.line : '가까운 제휴점에서 군민증으로 받을 수 있는 혜택'}
       />
       <main className="mx-auto max-w-3xl px-4 py-6">
         {story ? (
           <p className="text-sm font-semibold text-gray-600">
-            {story.emoji} 군민증 혜택 받을 수 있는 곳 {items.length}곳
+            군민증 혜택 받을 수 있는 곳 {items.length}곳
             {nearest ? ` · 가장 가까운 곳 ${formatDistance(nearest.meters)}` : ''}
           </p>
         ) : (
@@ -49,7 +49,7 @@ export function NearbyPage() {
         )}
 
         <div className="mt-4 flex items-center justify-between gap-3">
-          <p className="text-sm font-bold">📍 {located ? '현재 위치' : '양구읍 기준'}</p>
+          <p className="text-sm font-bold">{located ? '현재 위치' : '양구읍 기준'}</p>
           <button
             type="button"
             onClick={() => void locate()}
