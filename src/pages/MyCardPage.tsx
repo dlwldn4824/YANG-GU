@@ -22,10 +22,10 @@ export function MyCardPage() {
     <>
       <PageHeader
         kicker="내 군민증"
-        title={citizen ? '내 양구사랑 사이버 군민증' : '내 양구사랑 사이버 군민증을 발급 받아보세요!'}
-        desc="카드를 제시하고, 오늘의 양구를 기록하세요"
+        title={citizen ? `${citizen.name} 님의 카드` : '로그인해 군민증을 확인해 보세요'}
+        desc="매장에서 제시하고, 오늘 양구를 사진으로 남기세요"
       />
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="wrap py-8">
         <section className="grid items-start gap-10 lg:grid-cols-[320px_1fr]">
           <CitizenCard citizen={citizen} fragments={fragments} showCollection />
           <div>
@@ -34,8 +34,9 @@ export function MyCardPage() {
               <h3 className="text-2xl font-extrabold text-sub">안내</h3>
             </div>
             <p className="mt-5 text-[15px] font-semibold leading-7">
-              양구사랑 사이버 군민증은 모바일이나 인쇄된 이미지로 사용할 수 있으며 신분을 확인할 수 있는
-              신분증(주민등록증 or 운전면허증 or 여권)과 함께 보여줘야 합니다.
+              양구사랑 사이버 군민증은 모바일이나 인쇄된 이미지로 사용할 수 있으며
+              <br />
+              신분을 확인할 수 있는 신분증(주민등록증 or 운전면허증 or 여권)과 함께 보여줘야 합니다.
             </p>
             <div className="my-5 h-px bg-gray-200" />
             <p className="text-gray-600">
@@ -73,15 +74,15 @@ export function MyCardPage() {
                     to="/yanggu"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-bold text-gray-700"
                   >
-                    나의 양구 한 장 <Icon name="right" className="h-5 w-5" />
+                    양구 기록 보기 <Icon name="right" className="h-5 w-5" />
                   </Link>
                 </>
               ) : (
                 <Link
-                  to="/issue"
+                  to="/login"
                   className="inline-flex items-center justify-center rounded-full bg-main py-3 font-bold text-white hover:bg-main-dark"
                 >
-                  지금 발급받기
+                  로그인
                 </Link>
               )}
             </div>

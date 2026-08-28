@@ -2,9 +2,11 @@ import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { readPhotoAsFragment } from '../vision'
-import { formatDate, formatDuration, formatMonthLabel, localDateIso } from '../utils'
+import { formatDate, formatDuration, formatMonthKo, localDateIso } from '../utils'
 import { kindEmoji } from '../kinds'
 import { Icon } from './Icon'
+import { KindChips } from './KindChips'
+import type { YangguFragment } from '../types'
 
 export function MyYanggu() {
   const { fragments, addFragment } = useJournal()
@@ -17,6 +19,7 @@ export function MyYanggu() {
   const unique = uniqueKinds(fragments)
   const visits = visitDays(fragments)
   const palette = uniqueColors(fragments)
+  const previews = fragments.filter((item) => item.thumb).slice(0, 3)
 
   const onFile = async (file?: File) => {
     if (!file) return
@@ -35,12 +38,12 @@ export function MyYanggu() {
   return (
     <section id="yanggu" className="scroll-mt-24">
       <p className="text-sm font-bold text-sub">나의 양구</p>
-      <h2 className="mt-1 text-2xl font-extrabold">나의 양구</h2>
+      <h2 className="font-display mt-1 text-2xl font-extrabold">군민증에 남은 하루</h2>
       <p className="mt-2 text-sm text-gray-600">할 일을 채우는 대신, 이미 한 하루가 군민증에 남습니다.</p>
 
       <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-5">
         <p className="text-sm font-bold">{formatDate(localDateIso())}</p>
-        <p className="mt-2 text-lg font-extrabold">오늘의 양구를 한 장 남겨볼까요?</p>
+        <p className="mt-2 text-lg font-extrabold">오늘의 양구를 사진으로 남겨볼까요?</p>
         <input
           ref={inputRef}
           type="file"
@@ -61,35 +64,44 @@ export function MyYanggu() {
       </div>
 
       {latest ? (
-        <article className="mt-5 rounded-2xl bg-[#1b320c] px-5 py-6 text-white">
-          <p className="text-sm font-bold text-white/70">{latest.title}</p>
-          <div className="mt-4 flex items-center gap-4">
-            <img src={latest.sticker} alt={latest.label} className="h-24 w-24 object-contain drop-shadow-lg" />
-            <div>
+        <article className="mt-5 overflow-hidden rounded-2xl bg-[#1b320c] text-white">
+          {latest.thumb ? (
+            <img src={latest.thumb} alt="" className="aspect-[16/9] w-full object-cover opacity-90" />
+          ) : null}
+          <div className="px-5 py-6">
+            <p className="text-sm font-bold text-white/70">{latest.title}</p>
+            <div className="mt-3">
               {latest.lines.map((line) => (
                 <p key={line} className="leading-7">
                   {line}
                 </p>
               ))}
             </div>
+            <p className="mt-4 text-sm font-semibold text-white/80">
+              {kindEmoji(latest.kind)} {latest.tag}
+            </p>
+            {latest.colors && latest.colors.length > 0 ? (
+              <div className="mt-4 flex h-3 overflow-hidden rounded-full">
+                {latest.colors.map((swatch) => (
+                  <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} title={swatch.name} />
+                ))}
+              </div>
+            ) : null}
           </div>
-          <p className="mt-4 text-sm font-semibold text-white/80">{latest.tag}</p>
-          {latest.colors && latest.colors.length > 0 ? (
-            <div className="mt-4 flex h-3 overflow-hidden rounded-full">
-              {latest.colors.map((swatch) => (
-                <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} title={swatch.name} />
-              ))}
-            </div>
-          ) : null}
         </article>
       ) : null}
 
       {today.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-main-100 p-5">
           <p className="text-sm font-bold text-sub">오늘 양구에서 가져가는 것</p>
-          <ul className="mt-3 space-y-1 text-sm text-gray-600">
+          <ul className="mt-3 flex flex-wrap gap-2">
             {uniqueKinds(today).map((item) => (
-              <li key={item.id}>{item.label}</li>
+              <li
+                key={item.id}
+                className="rounded-full bg-main-50 px-3 py-1 text-sm font-bold text-main"
+              >
+                {kindEmoji(item.kind)} {item.label}
+              </li>
             ))}
           </ul>
           <p className="mt-3 font-extrabold">
@@ -99,63 +111,96 @@ export function MyYanggu() {
         </div>
       ) : null}
 
-      <div className="mt-8">
-        <p className="text-sm font-bold text-main">{new Date().getFullYear()}년의 양구</p>
+      <div className="mt-10">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-sm font-bold text-sub">{new Date().getFullYear()}년의 양구</p>
+            <h3 className="font-display mt-1 text-xl font-extrabold">모은 조각 {unique.length}개</h3>
+          </div>
+          {visits > 0 ? <p className="text-sm font-bold text-gray-500">방문 {visits}번</p> : null}
+        </div>
         {unique.length === 0 ? (
           <p className="mt-4 text-sm text-gray-500">아직 기록된 양구가 없습니다. 사진 한 장이 첫 조각이 됩니다.</p>
         ) : (
-          <>
-            <div className="relative mx-auto mt-4 h-56 max-w-sm">
-              {unique.map((item, i) => (
-                <span
-                  key={item.id}
-                  title={item.label}
-                  className="absolute grid h-20 w-20 place-items-center text-5xl drop-shadow-md"
-                  style={{
-                    left: `${12 + (i % 3) * 30}%`,
-                    top: `${8 + Math.floor(i / 3) * 34}%`,
-                    transform: `rotate(${i % 2 === 0 ? -8 : 10}deg)`,
-                  }}
-                >
-                  {kindEmoji(item.kind)}
-                </span>
-              ))}
-            </div>
-            <p className="mt-2 text-center text-sm font-bold">양구에서 모은 조각 {unique.length}개</p>
-          </>
+          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {unique.map((item) => (
+              <li key={item.id}>
+                <KindTile item={item} />
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
       {visits > 0 ? (
         <div className="mt-10">
-          <h3 className="text-lg font-extrabold">이 군민증과 함께</h3>
-          <p className="mt-2 text-sm text-gray-600">양구를 {visits}번 방문했어요.</p>
+          <h3 className="font-display text-xl font-extrabold">이 군민증과 함께</h3>
+          <p className="mt-1 text-sm text-gray-600">양구를 {visits}번 방문한 기록이 월별로 쌓입니다.</p>
           <ul className="mt-4 space-y-3">
             {months.map(([month, list]) => (
-              <li key={month} className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3">
-                <span className="font-bold">{formatMonthLabel(`${month}-01`)}</span>
-                <span className="text-sm font-semibold text-gray-600">
-                  {uniqueKinds(list).map((item) => item.label).join(' · ')}
-                </span>
+              <li key={month} className="rounded-2xl border border-gray-100 p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="font-display text-lg font-extrabold text-main">{formatMonthKo(month)}</p>
+                  <p className="text-xs font-bold text-gray-400">{list.length}장</p>
+                </div>
+                <div className="mt-3 flex gap-1.5 overflow-hidden">
+                  {list.slice(0, 4).map((item) => (
+                    <span key={item.id} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-main-50">
+                      {item.thumb ? (
+                        <img src={item.thumb} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center text-2xl">{kindEmoji(item.kind)}</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-3">
+                  <KindChips items={list} />
+                </div>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
 
-      {palette.length > 0 ? (
-        <Link to="/yanggu" className="mt-6 block overflow-hidden rounded-2xl">
+      <Link to="/yanggu" className="mt-8 block overflow-hidden rounded-3xl">
+        {previews.length > 0 ? (
+          <div className={`grid ${previews.length === 1 ? 'grid-cols-1' : 'grid-cols-3'}`}>
+            {previews.map((item) => (
+              <img key={item.id} src={item.thumb} alt="" className="aspect-[4/3] h-24 w-full object-cover sm:h-28" />
+            ))}
+          </div>
+        ) : palette.length > 0 ? (
           <div className="flex h-10">
             {palette.map((swatch) => (
               <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
             ))}
           </div>
-          <div className="flex items-center justify-between bg-main px-4 py-3 text-sm font-bold text-white">
-            나의 양구 한 장
-            <Icon name="right" className="h-4 w-4" />
+        ) : null}
+        <div className="flex items-center justify-between bg-main px-4 py-4 text-white">
+          <div>
+            <p className="text-[11px] font-bold tracking-wide text-white/80">사진으로 남긴 양구 방문</p>
+            <p className="font-display mt-0.5 text-lg font-extrabold">양구 기록 보기</p>
           </div>
-        </Link>
-      ) : null}
+          <Icon name="right" className="h-5 w-5" />
+        </div>
+      </Link>
     </section>
+  )
+}
+
+function KindTile({ item }: { item: YangguFragment }) {
+  return (
+    <figure className="overflow-hidden rounded-2xl bg-main-50">
+      <div className="relative aspect-square">
+        {item.thumb ? (
+          <img src={item.thumb} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-main-100 text-3xl">{kindEmoji(item.kind)}</div>
+        )}
+        <span className="absolute right-1 bottom-1 text-lg drop-shadow">{kindEmoji(item.kind)}</span>
+      </div>
+      <figcaption className="truncate px-1.5 py-1.5 text-center text-[11px] font-bold">{item.label}</figcaption>
+    </figure>
   )
 }

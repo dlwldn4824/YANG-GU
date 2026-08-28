@@ -1,22 +1,24 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useEffect, type ComponentProps } from 'react'
 import { useAuth } from '../auth'
+import { AWARD_LABEL } from './AwardBadge'
 import { Icon } from './Icon'
-import type { ComponentProps } from 'react'
 
 const DESKTOP_NAV: { to: string; label: string }[] = [
   { to: '/', label: '홈' },
-  { to: '/pick', label: 'PICK' },
-  { to: '/comma', label: '쉼표' },
-  { to: '/yanggu', label: '한 장' },
+  { to: '/pick', label: '추천' },
+  { to: '/nearby', label: '지도' },
+  { to: '/food', label: '음식점' },
+  { to: '/yanggu', label: '기록' },
   { to: '/card', label: '내 군민증' },
   { to: '/benefits', label: '혜택' },
 ]
 
 const MOBILE_NAV: { to: string; label: string; icon: ComponentProps<typeof Icon>['name'] }[] = [
   { to: '/', label: '홈', icon: 'leaf' },
-  { to: '/pick', label: 'PICK', icon: 'gift' },
-  { to: '/comma', label: '쉼표', icon: 'clock' },
-  { to: '/yanggu', label: '한 장', icon: 'walk' },
+  { to: '/pick', label: '추천', icon: 'gift' },
+  { to: '/nearby', label: '지도', icon: 'pin' },
+  { to: '/yanggu', label: '기록', icon: 'walk' },
   { to: '/card', label: '내 군민증', icon: 'id' },
 ]
 
@@ -31,12 +33,17 @@ export function Layout() {
   const location = useLocation()
   const hideChrome = location.pathname === '/present'
 
+  useEffect(() => {
+    if (location.hash) return
+    window.scrollTo(0, 0)
+  }, [location.pathname, location.hash])
+
   if (hideChrome) return <Outlet />
 
   return (
     <div className="min-h-dvh bg-white pb-20 lg:pb-0">
       <header className="sticky top-0 z-40 border-b border-main-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <div className="wrap flex h-16 items-center justify-between">
           <NavLink to="/" className="flex items-center gap-2">
             <Logo />
           </NavLink>
@@ -80,21 +87,13 @@ export function Layout() {
                 </button>
               </>
             ) : (
-              <>
-                <NavLink
-                  to="/login"
-                  className="flex items-center gap-1.5 rounded-full px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50"
-                >
-                  <Icon name="user" className="h-5 w-5" />
-                  <span className="hidden sm:inline">로그인</span>
-                </NavLink>
-                <NavLink
-                  to="/issue"
-                  className="hidden rounded-full bg-main px-3.5 py-1.5 font-semibold text-white hover:bg-main-dark sm:inline-flex"
-                >
-                  발급받기
-                </NavLink>
-              </>
+              <NavLink
+                to="/login"
+                className="flex items-center gap-1.5 rounded-full px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50"
+              >
+                <Icon name="user" className="h-5 w-5" />
+                <span className="hidden sm:inline">로그인</span>
+              </NavLink>
             )}
           </div>
         </div>
@@ -129,32 +128,25 @@ export function Layout() {
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2">
-      <span className="font-display grid h-8 w-8 place-items-center rounded-full bg-main text-sm font-extrabold text-white">
-        양
-      </span>
-      <div className="leading-tight">
-        <p className="font-display text-[15px] font-extrabold tracking-tight text-main">
-          양구 <span className="text-[#8bc34a]">DMO</span>
-        </p>
-        <p className="text-[10px] font-medium text-sub">사이버 군민증</p>
-      </div>
-    </div>
+    <span className="flex items-center gap-2.5">
+      <img src="/assets/ui/dmo-logo.png" alt="양구 DMO" className="h-9 w-auto sm:h-10" />
+      <span className="hidden text-[11px] font-bold text-sub sm:inline">사이버 군민증</span>
+    </span>
   )
 }
 
 function SiteFooter() {
   return (
-    <footer className="mt-16 bg-main-50 px-4 py-10 text-sm text-gray-600">
-      <div className="mx-auto max-w-6xl">
-        <p className="font-display font-extrabold text-main">양구 DMO</p>
+    <footer className="mt-16 bg-main-50 py-10 text-sm text-gray-600">
+      <div className="wrap">
+        <img src="/assets/ui/dmo-logo.png" alt="양구 DMO" className="h-10 w-auto" />
         <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-main">
-          <NavLink to="/pick">PICK</NavLink>
-          <NavLink to="/comma">쉼표</NavLink>
-          <NavLink to="/yanggu">한 장</NavLink>
+          <NavLink to="/pick">추천</NavLink>
+          <NavLink to="/nearby">지도</NavLink>
+          <NavLink to="/food">음식점</NavLink>
+          <NavLink to="/yanggu">기록</NavLink>
           <NavLink to="/card">내 군민증</NavLink>
           <NavLink to="/benefits">혜택</NavLink>
-          <NavLink to="/issue">발급</NavLink>
           <NavLink to="/faq">FAQ</NavLink>
         </nav>
         <div className="mt-6 space-y-1 leading-relaxed">
@@ -167,7 +159,8 @@ function SiteFooter() {
           <p>본사: 서울특별시 마포구 동교로 128 진영빌딩 B동 6층</p>
           <p>지사: 강원도 양구군 양구읍 중심로 216</p>
         </div>
-        <p className="mt-6 text-xs text-gray-500">Copyright 2026. 양구DMO. All rights reserved.</p>
+        <p className="mt-6 text-xs font-semibold text-sub">{AWARD_LABEL}</p>
+        <p className="mt-1 text-xs text-gray-500">Copyright 2026. 양구DMO. All rights reserved.</p>
       </div>
     </footer>
   )

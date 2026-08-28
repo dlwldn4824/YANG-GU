@@ -3,7 +3,7 @@ import { mapUrl, parseKnownSaving } from '../utils'
 import { formatDistance, formatWalkMinutes } from '../geo'
 import type { Benefit } from '../types'
 
-export type NearPartner = Benefit & { meters: number }
+export type NearPartner = Benefit & { meters: number; comma?: boolean; stayPerk?: string }
 
 export function PartnerNearList({
   items,
@@ -30,11 +30,17 @@ export function PartnerNearList({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-display font-extrabold">{item.title}</p>
-                  <p className="mt-0.5 text-xs font-semibold text-sub">{item.category}</p>
+                  <p className="mt-0.5 text-xs font-semibold text-sub">
+                    {item.category}
+                    {item.comma ? <span className="ml-1.5 text-point">쉼표 지원</span> : null}
+                  </p>
                 </div>
                 <p className="shrink-0 text-sm font-bold text-main">{formatDistance(item.meters)}</p>
               </div>
               <p className="mt-1 text-sm text-gray-600">{item.discount}</p>
+              {item.comma && item.stayPerk ? (
+                <p className="mt-1 text-sm font-semibold text-point">{item.stayPerk}</p>
+              ) : null}
               <p className="mt-1 text-xs text-gray-500">현재 위치에서 도보 약 {formatWalkMinutes(item.meters)}</p>
               {known ? (
                 <p className="mt-2 text-sm font-bold text-point">

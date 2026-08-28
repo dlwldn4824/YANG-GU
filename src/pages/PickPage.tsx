@@ -78,9 +78,9 @@ export function PickPage() {
   if (!story) {
     return (
       <main className="px-4 py-16 text-center">
-        <p>이번 주 PICK을 찾지 못했습니다.</p>
+        <p>추천을 찾지 못했습니다.</p>
         <Link to="/pick" className="mt-4 inline-block font-bold text-main">
-          이번 주 PICK 보기
+          목록으로
         </Link>
       </main>
     )
@@ -88,105 +88,98 @@ export function PickPage() {
 
   return (
     <>
-      <PageHeader kicker="PICK" title={story.title} desc={story.line} />
-      <main className="mx-auto max-w-3xl px-4 py-6">
-        <Link to="/pick" className="text-sm font-bold text-main">
-          ← 이번 주 PICK
-        </Link>
-        <p className="mt-4 text-[11px] font-bold tracking-[0.18em] text-sub">{story.weekLabel}</p>
-        <p className="mt-3 text-[15px] leading-7 text-gray-600">
+      <PageHeader
+        kicker="추천"
+        title={story.title}
+        desc={story.line}
+        back={{ to: '/pick', label: '목록으로' }}
+      />
+      <main className="wrap py-6">
+        <p className="text-[15px] leading-7 text-gray-600">
           가까운 곳부터 이어서 가는 동선입니다. 구간마다 거리·이동시간·예상 이동비를 함께 보여드립니다.
         </p>
 
-        <div className="mt-5 overflow-hidden rounded-2xl">
-          <img src={story.image} alt="" className="aspect-[16/9] w-full object-cover" />
-        </div>
-
-        <div className="mt-6 flex items-center justify-between gap-3">
-          <p className="text-sm font-bold">{located ? '현재 위치에서 출발' : '양구읍에서 출발'}</p>
-          <button
-            type="button"
-            onClick={() => void locate()}
-            className="rounded-full bg-main-50 px-3 py-1.5 text-xs font-bold text-main"
-          >
-            {locating ? '찾는 중...' : located ? '내 위치' : '내 위치로'}
-          </button>
-        </div>
-        {error ? <p className="mt-1 text-xs text-gray-500">{error} 양구읍을 기준으로 보여드립니다.</p> : null}
-
-        <div className="mt-4">
-          <PickRouteMap origin={origin} stops={stops} selectedId={activeId} onSelect={setSelected} path={mapPath} />
-        </div>
-
-        {stops.length > 0 ? (
-          <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl bg-main-50 px-3 py-4 text-center">
-            <div>
-              <p className="text-[11px] font-semibold text-gray-500">총 이동</p>
-              <p className="mt-1 text-sm font-extrabold">{formatDistance(totalMeters)}</p>
+        <div className="mt-5 grid items-start gap-6 lg:grid-cols-2">
+          <div>
+            <div className="overflow-hidden rounded-2xl">
+              <img src={story.image} alt="" className="aspect-[16/9] w-full object-cover" />
             </div>
-            <div>
-              <p className="text-[11px] font-semibold text-gray-500">예상 시간</p>
-              <p className="mt-1 text-sm font-extrabold">{formatTotalMinutes(totalMinutes)}</p>
+
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <p className="text-sm font-bold">{located ? '현재 위치에서 출발' : '양구읍에서 출발'}</p>
+              <button
+                type="button"
+                onClick={() => void locate()}
+                className="rounded-full bg-main-50 px-3 py-1.5 text-xs font-bold text-main"
+              >
+                {locating ? '찾는 중...' : located ? '내 위치' : '내 위치로'}
+              </button>
             </div>
-            <div>
-              <p className="text-[11px] font-semibold text-gray-500">예상 이동비</p>
-              <p className="mt-1 text-sm font-extrabold">{formatWon(totalTaxi)}</p>
+            {error ? <p className="mt-1 text-xs text-gray-500">{error} 양구읍을 기준으로 보여드립니다.</p> : null}
+
+            <div className="mt-4">
+              <PickRouteMap origin={origin} stops={stops} selectedId={activeId} onSelect={setSelected} path={mapPath} />
+            </div>
+
+            {stops.length > 0 ? (
+              <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl bg-main-50 px-3 py-4 text-center">
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-500">총 이동</p>
+                  <p className="mt-1 text-sm font-extrabold">{formatDistance(totalMeters)}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-500">예상 시간</p>
+                  <p className="mt-1 text-sm font-extrabold">{formatTotalMinutes(totalMinutes)}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-500">예상 이동비</p>
+                  <p className="mt-1 text-sm font-extrabold">{formatWon(totalTaxi)}</p>
+                </div>
+              </div>
+            ) : null}
+            {visitBills.length > 0 ? (
+              <p className="mt-2 text-center text-xs text-gray-600">
+                입장료 있는 곳 군민 결제 {formatWon(visitPay)}
+                <span className="text-point"> · {formatWon(visitSave)} 절약</span>
+              </p>
+            ) : null}
+            <p className="mt-2 text-center text-[11px] leading-5 text-gray-400">
+              {live
+                ? '이동 거리·시간은 실제 도로 경로(OSRM) 기준입니다.'
+                : failedKey === tripKey
+                  ? '도로 경로를 불러오지 못해 직선거리로 보여드립니다.'
+                  : '도로 경로를 불러오는 중입니다. 직선거리로 먼저 보여드립니다.'}{' '}
+              1.5km 이내는 도보로 보고 이동비 0원입니다. 예상 택시는 참고용이며 실제 요금과 다를 수 있습니다.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-extrabold">추천 동선 {stops.length}곳</p>
+            <PickItinerary
+              originLabel={located ? '현재 위치' : '양구읍'}
+              firstLeg={firstLeg}
+              stops={stops}
+              legs={legs}
+              selectedId={activeId}
+              onSelect={setSelected}
+            />
+            <div className="mt-2 grid gap-3">
+              <Link
+                to="/nearby?comma=1"
+                className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
+              >
+                {story.linger ? '이 근처 쉼표 매장 보기' : '제휴 지도에서 쉼표 매장 보기'}
+                <Icon name="right" className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/yanggu"
+                className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
+              >
+                오늘 기록 남기기
+                <Icon name="right" className="h-4 w-4" />
+              </Link>
             </div>
           </div>
-        ) : null}
-        {visitBills.length > 0 ? (
-          <p className="mt-2 text-center text-xs text-gray-600">
-            입장료 있는 곳 군민 결제 {formatWon(visitPay)}
-            <span className="text-point"> · {formatWon(visitSave)} 절약</span>
-          </p>
-        ) : null}
-        <p className="mt-2 text-center text-[11px] leading-5 text-gray-400">
-          {live
-            ? '이동 거리·시간은 실제 도로 경로(OSRM) 기준입니다.'
-            : failedKey === tripKey
-              ? '도로 경로를 불러오지 못해 직선거리로 보여드립니다.'
-              : '도로 경로를 불러오는 중입니다. 직선거리로 먼저 보여드립니다.'}{' '}
-          1.5km 이내는 도보로 보고 이동비 0원입니다. 예상 택시는 참고용이며 실제 요금과 다를 수 있습니다.
-        </p>
-
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm font-extrabold">추천 동선 {stops.length}곳</p>
-        </div>
-
-        <PickItinerary
-          originLabel={located ? '현재 위치' : '양구읍'}
-          firstLeg={firstLeg}
-          stops={stops}
-          legs={legs}
-          selectedId={activeId}
-          onSelect={setSelected}
-        />
-
-        <div className="mt-2 grid gap-3">
-          {story.linger ? (
-            <Link
-              to="/comma"
-              className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
-            >
-              이 근처에서 천천히 쉬기
-              <Icon name="right" className="h-4 w-4" />
-            </Link>
-          ) : (
-            <Link
-              to="/comma"
-              className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
-            >
-              사기 전에, 양구에서 조금 머물러도 좋아요
-              <Icon name="right" className="h-4 w-4" />
-            </Link>
-          )}
-          <Link
-            to="/yanggu"
-            className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
-          >
-            오늘의 양구를 한 장 남기기
-            <Icon name="right" className="h-4 w-4" />
-          </Link>
         </div>
       </main>
     </>

@@ -1,5 +1,27 @@
 export type Category = '전체' | '관광지' | '카페' | '체험' | '숙박' | '기타'
 
+export type FoodKind = '한식' | '중식' | '일식' | '양식' | '분식' | '카페' | '치킨' | '기타'
+
+export type FoodRegion = '양구읍' | '국토정중앙면' | '동면' | '방산면' | '해안면'
+
+export type FoodPlace = {
+  id: string
+  placeNo: number
+  title: string
+  address: string
+  image: string | null
+  tags: string[]
+  phone?: string
+  cuisine?: string
+  hours?: string
+  summary?: string
+  link: string
+  kind: FoodKind
+  region: FoodRegion | null
+  point: GeoPoint | null
+  benefitId?: string
+}
+
 export type Benefit = {
   id: string
   title: string

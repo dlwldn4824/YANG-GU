@@ -8,9 +8,10 @@ import { formatWalkMinutes, haversineMeters } from '../geo'
 import { todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { useDaySteps } from '../steps'
 import { useOrigin } from '../useOrigin'
-import { formatMonthLabel, localDateIso, parseKnownSaving } from '../utils'
+import { formatMonthKo, localDateIso, parseKnownSaving } from '../utils'
 import { readPhotoAsFragment } from '../vision'
 import { CompanionSprite } from '../components/CompanionSprite'
+import { KindChips } from '../components/KindChips'
 import { YangguPoster } from '../components/YangguPoster'
 import { Icon } from '../components/Icon'
 import type { YangguKind } from '../types'
@@ -59,11 +60,11 @@ export function FilmPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <p className="text-sm font-bold text-sub">발자국</p>
-      <h1 className="font-display mt-1 text-3xl font-extrabold">{citizen?.name ?? '나의'}의 양구 한 장</h1>
+    <main className="wrap py-8">
+      <p className="text-sm font-bold text-sub">오늘</p>
+      <h1 className="font-display mt-1 text-3xl font-extrabold">{citizen?.name ?? '나의'}의 양구 기록</h1>
       <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">
-        걸음을 채울 필요는 없습니다. 사진만 남기면 걸음·색·순간이 모여, 오늘 양구의 여행 카드가 됩니다.
+        걸음을 채울 필요는 없습니다. 사진만 남기면 걸음·색·순간이 모여, 오늘 양구 방문이 기록됩니다.
       </p>
 
       <section className="mt-6 rounded-3xl border border-main-100 bg-main-50 px-5 py-6">
@@ -84,7 +85,7 @@ export function FilmPage() {
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700">
           <li>발견한 색 {colors.length}개</li>
           <li>남긴 순간 {today.length}장</li>
-          <li>군민 PICK {pickHits}개</li>
+          <li>이번 주 추천 {pickHits}개</li>
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
           <button
@@ -142,7 +143,7 @@ export function FilmPage() {
 
       <section className="mt-10">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl font-extrabold">나의 양구 한 장</h2>
+          <h2 className="font-display text-xl font-extrabold">오늘 만든 카드</h2>
           <button type="button" onClick={() => window.print()} className="text-sm font-bold text-main">
             저장
           </button>
@@ -175,7 +176,7 @@ export function FilmPage() {
             </p>
           ) : null}
           <Link to={`/pick/${missed.story.id}`} className="mt-4 inline-flex items-center font-bold text-main">
-            군민 PICK에서 보기 <Icon name="right" className="ml-1 h-4 w-4" />
+            추천에서 보기 <Icon name="right" className="ml-1 h-4 w-4" />
           </Link>
         </section>
       ) : null}
@@ -183,17 +184,22 @@ export function FilmPage() {
       {visits > 1 ? (
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold">다시 온 양구</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm leading-6 text-gray-600">
             {companion.name}는 그대로 있고, 양구를 {visits}번 방문한 기록이 남아 있습니다.
           </p>
-          <ul className="mt-4 space-y-2">
-            {months.map(([month, list]) => (
-              <li key={month} className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm">
-                <span className="font-bold">{formatMonthLabel(`${month}-01`)}</span>
-                <span className="text-gray-600">{uniqueKinds(list).map((item) => item.label).join(' · ')}</span>
+          <ol className="mt-5 overflow-hidden rounded-3xl border border-main-100 bg-white">
+            {months.map(([month, list], index) => (
+              <li
+                key={month}
+                className={`flex gap-4 px-5 py-4 ${index > 0 ? 'border-t border-main-100' : ''}`}
+              >
+                <p className="w-14 shrink-0 pt-0.5 font-display text-lg font-extrabold text-main">
+                  {formatMonthKo(month)}
+                </p>
+                <KindChips items={list} />
               </li>
             ))}
-          </ul>
+          </ol>
         </section>
       ) : null}
     </main>

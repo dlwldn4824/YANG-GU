@@ -9,9 +9,10 @@ export type MapPin = {
   point: GeoPoint
   label: string
   number?: number
+  tone?: 'comma' | 'partner' | 'food'
 }
 
-function Fit({ points }: { points: GeoPoint[] }) {
+function Fit({ points, maxZoom }: { points: GeoPoint[]; maxZoom: number }) {
   const map = useMap()
   const serialized = points.map((point) => `${point.lat.toFixed(5)},${point.lng.toFixed(5)}`).join('|')
 
@@ -22,11 +23,11 @@ function Fit({ points }: { points: GeoPoint[] }) {
       return [Number(lat), Number(lng)] as [number, number]
     })
     if (parsed.length === 1) {
-      map.setView(parsed[0], 14)
+      map.setView(parsed[0], Math.min(14, maxZoom))
       return
     }
-    map.fitBounds(latLngBounds(parsed), { padding: [36, 36], maxZoom: 15 })
-  }, [map, serialized])
+    map.fitBounds(latLngBounds(parsed), { padding: [36, 36], maxZoom })
+  }, [map, serialized, maxZoom])
   return null
 }
 
@@ -55,12 +56,23 @@ function originIcon() {
   })
 }
 
-function stopIcon(label: string, active: boolean) {
-  const bg = active ? '#ff8953' : '#447e1d'
+function stopIcon(label: string, active: boolean, tone?: 'comma' | 'partner' | 'food') {
+  if (tone === 'food') {
+    const size = active ? 16 : 10
+    const ring = active ? 'box-shadow:0 0 0 2px #fff,0 0 0 4px #447e1d' : 'box-shadow:0 1px 3px rgba(0,0,0,.3)'
+    return divIcon({
+      className: 'yanggu-map-pin',
+      html: `<span style="display:block;width:${size}px;height:${size}px;border-radius:999px;background:#447e1d;${ring}"></span>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    })
+  }
+  const bg = tone === 'comma' ? '#ff8953' : '#447e1d'
+  const ring = active ? 'box-shadow:0 0 0 2px #fff,0 0 0 4px ' + bg : 'box-shadow:0 1px 4px rgba(0,0,0,.25)'
   const width = Math.max(28, label.length * 12 + 14)
   return divIcon({
     className: 'yanggu-map-pin',
-    html: `<span style="background:${bg}" class="grid h-7 min-w-7 place-items-center rounded-full px-1.5 text-[11px] font-extrabold text-white shadow">${label}</span>`,
+    html: `<span style="background:${bg};${ring}" class="grid h-7 min-w-7 place-items-center rounded-full px-1.5 text-[11px] font-extrabold text-white">${label}</span>`,
     iconSize: [width, 28],
     iconAnchor: [width / 2, 14],
   })
@@ -73,6 +85,9 @@ export function YangguMap({
   onSelect,
   path,
   badge = '양구',
+  className = 'h-72 lg:h-[32rem]',
+  fitOrigin = true,
+  maxFitZoom = 15,
 }: {
   origin: GeoPoint
   pins: MapPin[]
@@ -80,14 +95,18 @@ export function YangguMap({
   onSelect?: (id: string) => void
   path?: [number, number][]
   badge?: string
+  fitOrigin?: boolean
+  maxFitZoom?: number
+  className?: string
 }) {
-  const points = [origin, ...pins.map((pin) => pin.point)]
+  const pinPoints = pins.map((pin) => pin.point)
+  const points = fitOrigin ? [origin, ...pinPoints] : pinPoints.length > 0 ? pinPoints : [origin]
   const center: [number, number] = [origin.lat, origin.lng]
   const selected = pins.find((pin) => pin.id === selectedId)?.point ?? null
 
   return (
     <div>
-      <div className="relative h-72 overflow-hidden rounded-2xl border border-main-100">
+      <div className={`relative overflow-hidden rounded-2xl border border-main-100 ${className}`}>
         <MapContainer
           center={center}
           zoom={13}
@@ -98,7 +117,7 @@ export function YangguMap({
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <ZoomControl position="bottomright" />
-          <Fit points={points} />
+          <Fit points={points} maxZoom={maxFitZoom} />
           <FocusPin point={selected} />
           {path && path.length > 1 ? (
             <Polyline
@@ -111,7 +130,11 @@ export function YangguMap({
             <Marker
               key={pin.id}
               position={[pin.point.lat, pin.point.lng]}
-              icon={stopIcon(pin.number != null ? String(pin.number) : pin.label, selectedId === pin.id)}
+              icon={stopIcon(
+                pin.number != null ? String(pin.number) : pin.label,
+                selectedId === pin.id,
+                pin.tone,
+              )}
               title={pin.label}
               eventHandlers={{
                 click: () => onSelect?.(pin.id),

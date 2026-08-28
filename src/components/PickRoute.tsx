@@ -30,7 +30,7 @@ export function PickRouteMap({
       selectedId={selectedId}
       onSelect={onSelect}
       path={path}
-      badge="추천 동선"
+      badge="동선"
     />
   )
 }

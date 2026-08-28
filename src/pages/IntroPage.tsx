@@ -4,9 +4,10 @@ import { Icon } from '../components/Icon'
 import { useAuth } from '../auth'
 
 const MENU = [
-  { to: '/pick', title: 'PICK', line: '이번 주 양구에서 해볼 만한 것' },
-  { to: '/comma', title: '쉼표', line: '오래 머물기 좋은 제휴 공간' },
-  { to: '/yanggu', title: '한 장', line: '오늘 양구에서 남긴 발자국' },
+  { to: '/pick', title: '추천', line: '이번 주 양구에서 해볼 만한 것' },
+  { to: '/nearby', title: '지도', line: '제휴 매장과 오래 머물 곳' },
+  { to: '/food', title: '음식점', line: '양구볼구양에 있는 먹을 곳' },
+  { to: '/yanggu', title: '기록', line: '사진으로 남긴 양구 방문' },
   { to: '/card', title: '내 군민증', line: '카드 제시와 오늘의 기록' },
 ]
 
@@ -16,7 +17,7 @@ export function IntroPage() {
   return (
     <>
       <HeroBanner />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="wrap py-10">
         <p className="text-sm font-bold text-sub">바로 가기</p>
         <h2 className="font-display mt-1 text-2xl font-extrabold">무엇을 할까요?</h2>
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -46,10 +47,10 @@ export function IntroPage() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
-            to={citizen ? '/card' : '/issue'}
+            to={citizen ? '/card' : '/login'}
             className="inline-flex items-center gap-1 rounded-full bg-main px-6 py-3 font-bold text-white hover:bg-main-dark"
           >
-            {citizen ? '내 군민증 보기' : '군민증 발급하기'}
+            {citizen ? '내 군민증 보기' : '로그인'}
             <Icon name="right" className="h-5 w-5" />
           </Link>
           <Link

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CITIZEN_COUNT } from '../data'
+import { AwardBadge } from './AwardBadge'
 import { Icon } from './Icon'
 
 export function HeroBanner() {
@@ -22,9 +23,10 @@ export function HeroBanner() {
       style={{ backgroundImage: 'url(/assets/ui/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-[#ecf2e8]/90 via-[#ecf2e8]/70 to-transparent" />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-6 px-4 py-10 lg:grid-cols-[1fr_auto] lg:py-16">
+      <div className="relative wrap grid items-center gap-6 py-10 lg:grid-cols-[1fr_auto] lg:py-16">
         <div>
-          <p className="text-[11px] font-bold tracking-[0.2em] text-sub">YANGGU CYBER CITIZEN</p>
+          <AwardBadge />
+          <p className="mt-3 text-[11px] font-bold tracking-[0.2em] text-sub">YANGGU CYBER CITIZEN</p>
           <h1 className="mt-2 text-[32px] font-extrabold leading-tight text-ink lg:text-5xl">
             양구사랑
             <br />

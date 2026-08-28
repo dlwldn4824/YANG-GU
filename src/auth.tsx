@@ -13,14 +13,8 @@ function load(): Citizen | null {
   }
 }
 
-function save(citizen: Citizen | null) {
-  if (citizen) localStorage.setItem(KEY, JSON.stringify(citizen))
-  else localStorage.removeItem(KEY)
-}
-
 type AuthValue = {
   citizen: Citizen | null
-  issue: (citizen: Citizen) => void
   login: (email: string, password: string) => string | null
   logout: () => void
 }
@@ -33,13 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthValue>(
     () => ({
       citizen,
-      issue: (next) => {
-        save(next)
-        setCitizen(next)
-      },
       login: (email, password) => {
         const stored = load()
-        if (!stored) return '발급된 군민증이 없습니다. 먼저 발급받아 주세요.'
+        if (!stored) return '등록된 군민증이 없습니다.'
         if (stored.email !== email || stored.password !== password) {
           return '이메일 또는 비밀번호가 올바르지 않습니다.'
         }

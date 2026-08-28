@@ -5,6 +5,7 @@ export function linkLabel(url: string) {
   if (url.includes('map.naver.com')) return '지도 보기'
   if (url.includes('instagram.com')) return '인스타그램'
   if (url.includes('blog.naver.com') || url.includes('m.blog.naver')) return '블로그'
+  if (url.includes('ygtour.kr')) return '양구볼구양'
   return '홈페이지'
 }
 
@@ -50,6 +51,12 @@ export function formatClock(date = new Date()) {
 export function formatMonthLabel(iso: string) {
   const [year, month] = iso.split('-')
   return `${year}.${month}`
+}
+
+/** `2026-08` 또는 `2026-08-01` → 8월 */
+export function formatMonthKo(ym: string) {
+  const month = ym.split('-')[1]
+  return `${Number(month)}월`
 }
 
 export function formatDuration(ms: number) {

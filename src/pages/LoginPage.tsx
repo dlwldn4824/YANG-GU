@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../auth'
 
@@ -22,7 +22,7 @@ export function LoginPage() {
 
   return (
     <>
-      <PageHeader kicker="로그인" title="로그인" desc="발급 시 등록한 이메일로 군민증을 불러옵니다." />
+      <PageHeader title="군민증 불러오기" desc="등록한 이메일로 군민증을 불러옵니다." />
       <main className="mx-auto max-w-md px-4 py-8">
         <form onSubmit={onSubmit} className="space-y-4">
           <input
@@ -44,12 +44,6 @@ export function LoginPage() {
             로그인
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-gray-600">
-          아직 군민증이 없나요?{' '}
-          <Link to="/issue" className="font-bold text-main">
-            발급받기
-          </Link>
-        </p>
       </main>
     </>
   )

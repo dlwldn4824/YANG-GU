@@ -31,7 +31,7 @@ export const PARTNER_GEO: Record<string, PartnerGeo> = {
 export const WEEKLY_PICKS: PickStory[] = [
   {
     id: 'season',
-    weekLabel: '이번 주 PICK',
+    weekLabel: '멜론',
     title: '요즘 멜론이 가장 맛있을 때',
     line: '집에 가기 전 사가기 좋은 곳',
     image: '/assets/benefits/farm.jpg',
@@ -39,7 +39,7 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
   {
     id: 'bread',
-    weekLabel: '이번 주 PICK',
+    weekLabel: '빵',
     title: '양구 오면 이 빵 많이 사가요',
     line: '오늘 4시 전에 가는 걸 추천',
     image: '/assets/benefits/baekkop.jpg',
@@ -47,15 +47,15 @@ export const WEEKLY_PICKS: PickStory[] = [
   },
   {
     id: 'lunch',
-    weekLabel: '이번 주 PICK',
-    title: '양구군 직원들의 점심 PICK',
+    weekLabel: '점심',
+    title: '양구군 직원들이 자주 가는 점심',
     line: '실제 점심시간에 자주 찾는 메뉴',
     image: '/assets/benefits/yangguga.jpg',
     partnerIds: ['yangguga', 'baekkop', 'terrace'],
   },
   {
     id: 'linger',
-    weekLabel: '이번 주 PICK',
+    weekLabel: '카페',
     title: '오늘 같은 더운 날 오래 있기 좋은 곳',
     line: '시원하고 좌석 넓은 제휴 카페',
     image: '/assets/benefits/terrace.jpg',
@@ -125,3 +125,9 @@ export const COMMA_SPACES: CommaSpace[] = [
     stayPerk: '숙박 시 사이버 군민 혜택',
   },
 ]
+
+export const COMMA_PARTNER_IDS = new Set(COMMA_SPACES.map((space) => space.partnerId))
+
+export function isCommaPartner(id: string) {
+  return COMMA_PARTNER_IDS.has(id)
+}

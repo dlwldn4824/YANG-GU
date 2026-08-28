@@ -6,8 +6,8 @@ import { Icon } from '../components/Icon'
 export function PickIndexPage() {
   return (
     <>
-      <PageHeader kicker="PICK" title="이번 주 군민 PICK" desc="지금 양구에서 해볼 만한 것" />
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <PageHeader kicker="추천" title="이번 주 양구에서 해볼 것" desc="군민증으로 가기 좋은 동선입니다." />
+      <main className="wrap py-8">
         <ul className="grid gap-5 sm:grid-cols-2">
           {WEEKLY_PICKS.map((story) => (
             <li key={story.id}>
@@ -25,7 +25,7 @@ export function PickIndexPage() {
                   <p className="font-display text-lg font-extrabold leading-snug">{story.title}</p>
                   <p className="mt-1 text-sm text-gray-600">{story.line}</p>
                   <p className="mt-3 text-sm font-bold text-main">
-                    {story.partnerIds.length}곳 동선 · 이동시간 · 예상 비용
+                    {story.partnerIds.length}곳 동선 보기
                     <Icon name="right" className="ml-1 inline h-4 w-4" />
                   </p>
                 </div>

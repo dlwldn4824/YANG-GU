@@ -33,21 +33,28 @@ export function BenefitsPage() {
 
   return (
     <>
-      <PageHeader kicker="혜택" title="양구사랑 사이버 군민증 혜택" desc="다양한 할인 혜택을 확인해보세요!" />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-5 grid gap-3 sm:grid-cols-2">
+      <PageHeader kicker="혜택" title="군민증으로 받는 할인" desc="현장에서 군민증과 신분증을 함께 보여 주세요." />
+      <main className="wrap py-8">
+        <div className="mb-5 grid gap-3 sm:grid-cols-3">
           <Link
             to="/nearby"
             className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
           >
-            내 주변 혜택 지도
+            제휴 매장 지도
             <Icon name="right" className="h-4 w-4" />
           </Link>
           <Link
-            to="/comma"
+            to="/nearby?comma=1"
             className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
           >
-            오래 머물기 좋은 쉼표
+            쉼표 지원 매장
+            <Icon name="right" className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/food"
+            className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
+          >
+            양구 음식점
             <Icon name="right" className="h-4 w-4" />
           </Link>
         </div>

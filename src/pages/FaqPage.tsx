@@ -9,7 +9,7 @@ export function FaqPage() {
   return (
     <>
       <PageHeader kicker="FAQ" title="자주 묻는 질문" desc={`총 ${FAQS.length}건`} />
-      <main className="mx-auto max-w-3xl px-4 py-8">
+      <main className="mx-auto w-full max-w-3xl px-4 py-8 lg:px-8">
         <ul className="space-y-3">
           {FAQS.map((item, i) => {
             const isOpen = open === i
