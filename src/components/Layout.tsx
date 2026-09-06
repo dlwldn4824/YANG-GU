@@ -1,23 +1,27 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, type ComponentProps } from 'react'
 import { useAuth } from '../auth'
+import { BAEKKOBI_SRC } from '../companion'
 import { Icon } from './Icon'
 
 const DESKTOP_NAV: { to: string; label: string }[] = [
   { to: '/', label: '홈' },
   { to: '/pick', label: '추천' },
-  { to: '/nearby', label: '지도' },
-  { to: '/food', label: '음식점' },
-  { to: '/yanggu', label: '기록' },
+  { to: '/nearby', label: '제휴지도' },
+  { to: '/yanggu', label: '배꼬비' },
   { to: '/card', label: '내 군민증' },
-  { to: '/benefits', label: '혜택' },
 ]
 
-const MOBILE_NAV: { to: string; label: string; icon: ComponentProps<typeof Icon>['name'] }[] = [
+const MOBILE_NAV: {
+  to: string
+  label: string
+  icon?: ComponentProps<typeof Icon>['name']
+  image?: string
+}[] = [
   { to: '/', label: '홈', icon: 'leaf' },
   { to: '/pick', label: '추천', icon: 'gift' },
-  { to: '/nearby', label: '지도', icon: 'pin' },
-  { to: '/yanggu', label: '기록', icon: 'walk' },
+  { to: '/nearby', label: '제휴지도', icon: 'pin' },
+  { to: '/yanggu', label: '배꼬비', image: BAEKKOBI_SRC },
   { to: '/card', label: '내 군민증', icon: 'id' },
 ]
 
@@ -104,21 +108,30 @@ export function Layout() {
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-main-100 bg-white/95 backdrop-blur lg:hidden">
         <div className="grid grid-cols-5 px-1 pb-[env(safe-area-inset-bottom)]">
-          {MOBILE_NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={() =>
-                `flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold ${
-                  isNavActive(location.pathname, item.to) ? 'text-main' : 'text-gray-400'
-                }`
-              }
-            >
-              <Icon name={item.icon} className="h-5 w-5" />
-              {item.label}
-            </NavLink>
-          ))}
+          {MOBILE_NAV.map((item) => {
+            const active = isNavActive(location.pathname, item.to)
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold ${
+                  active ? 'text-main' : 'text-gray-400'
+                }`}
+              >
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt=""
+                    className={`h-5 w-5 object-contain ${active ? '' : 'opacity-45 grayscale'}`}
+                  />
+                ) : (
+                  <Icon name={item.icon!} className="h-5 w-5" />
+                )}
+                {item.label}
+              </NavLink>
+            )
+          })}
         </div>
       </nav>
     </div>
@@ -141,11 +154,9 @@ function SiteFooter() {
         <img src="/assets/ui/dmo-logo.png" alt="양구 DMO" className="h-10 w-auto" />
         <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-main">
           <NavLink to="/pick">추천</NavLink>
-          <NavLink to="/nearby">지도</NavLink>
-          <NavLink to="/food">음식점</NavLink>
-          <NavLink to="/yanggu">기록</NavLink>
+          <NavLink to="/nearby">제휴지도</NavLink>
+          <NavLink to="/yanggu">배꼬비</NavLink>
           <NavLink to="/card">내 군민증</NavLink>
-          <NavLink to="/benefits">혜택</NavLink>
           <NavLink to="/faq">FAQ</NavLink>
         </nav>
         <div className="mt-6 space-y-1 leading-relaxed">

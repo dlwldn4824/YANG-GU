@@ -70,7 +70,7 @@ export function NearbyPage() {
   return (
     <>
       <PageHeader
-        kicker="지도"
+        kicker="제휴지도"
         title={story ? story.title : '제휴 매장'}
         desc={
           story
@@ -123,7 +123,7 @@ export function NearbyPage() {
               selectedId={activeId}
               onSelect={setSelected}
               path={path}
-              badge={SHOW_COMMA && filter === 'comma' ? '쉼표 매장' : '제휴 지도'}
+              badge={SHOW_COMMA && filter === 'comma' ? '쉼표 매장' : '제휴지도'}
               className="h-72 lg:h-[min(70vh,40rem)]"
             />
             {SHOW_COMMA ? (
