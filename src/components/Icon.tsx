@@ -24,6 +24,7 @@ type IconName =
   | 'truck'
   | 'check'
   | 'user'
+  | 'buddy'
 
 const PATHS: Record<IconName, string | string[]> = {
   leaf: 'M12 3c4 2 7 6 7 11a7 7 0 0 1-14 0c0-2 3-7 7-11Zm0 6v8',
@@ -51,6 +52,12 @@ const PATHS: Record<IconName, string | string[]> = {
   truck: 'M3 7h11v10H3V7Zm11 3h4l3 3v4h-7V10ZM7 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
   check: 'M5 12l5 5L20 7',
   user: ['M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z', 'M5.2 20.5a6.8 6.8 0 0 0 13.6 0'],
+  buddy: [
+    'M18.2 15.8a6.2 6.2 0 1 1-12.4 0 6.2 6.2 0 0 1 12.4 0Z',
+    'M12 9.6V4.8',
+    'M12 6.4c-2.1.2-3.6 1.6-3.8 3',
+    'M12 6.4c2.1.2 3.6 1.6 3.8 3',
+  ],
 }
 
 export function Icon({ name, className = 'h-5 w-5' }: { name: IconName; className?: string }) {
