@@ -5,7 +5,7 @@ import { companionById, companionLook, companionSpeech, posterCaption } from '..
 import { WEEKLY_PICKS, PARTNER_GEO } from '../data/picks'
 import { BENEFITS } from '../data'
 import { formatWalkMinutes, haversineMeters } from '../geo'
-import { todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
+import { SHOW_VISIT_HISTORY, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { useDaySteps } from '../steps'
 import { useOrigin } from '../useOrigin'
 import { formatMonthKo, localDateIso, parseKnownSaving } from '../utils'
@@ -181,7 +181,7 @@ export function FilmPage() {
         </section>
       ) : null}
 
-      {visits > 1 ? (
+      {SHOW_VISIT_HISTORY && visits > 1 ? (
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold">다시 온 양구</h2>
           <p className="mt-2 text-sm leading-6 text-gray-600">

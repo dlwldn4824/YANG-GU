@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { SHOW_COMMA } from '../data/picks'
 import { mapUrl, parseKnownSaving } from '../utils'
 import { formatDistance, formatWalkMinutes } from '../geo'
 import type { Benefit } from '../types'
@@ -32,13 +33,13 @@ export function PartnerNearList({
                   <p className="font-display font-extrabold">{item.title}</p>
                   <p className="mt-0.5 text-xs font-semibold text-sub">
                     {item.category}
-                    {item.comma ? <span className="ml-1.5 text-point">쉼표 지원</span> : null}
+                    {SHOW_COMMA && item.comma ? <span className="ml-1.5 text-point">쉼표 지원</span> : null}
                   </p>
                 </div>
                 <p className="shrink-0 text-sm font-bold text-main">{formatDistance(item.meters)}</p>
               </div>
               <p className="mt-1 text-sm text-gray-600">{item.discount}</p>
-              {item.comma && item.stayPerk ? (
+              {SHOW_COMMA && item.comma && item.stayPerk ? (
                 <p className="mt-1 text-sm font-semibold text-point">{item.stayPerk}</p>
               ) : null}
               <p className="mt-1 text-xs text-gray-500">현재 위치에서 도보 약 {formatWalkMinutes(item.meters)}</p>

@@ -5,6 +5,9 @@ import { localDateIso } from './utils'
 
 const KEY = 'yanggu-fragments'
 
+/** 웹 UI에서 ‘다시 온 양구’ 방문 기록 노출 여부. 데이터·로직은 유지한다. */
+export const SHOW_VISIT_HISTORY = false
+
 function load(): YangguFragment[] {
   try {
     const raw = localStorage.getItem(KEY)

@@ -1,7 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, type ComponentProps } from 'react'
 import { useAuth } from '../auth'
-import { AWARD_LABEL } from './AwardBadge'
 import { Icon } from './Icon'
 
 const DESKTOP_NAV: { to: string; label: string }[] = [
@@ -159,8 +158,7 @@ function SiteFooter() {
           <p>본사: 서울특별시 마포구 동교로 128 진영빌딩 B동 6층</p>
           <p>지사: 강원도 양구군 양구읍 중심로 216</p>
         </div>
-        <p className="mt-6 text-xs font-semibold text-sub">{AWARD_LABEL}</p>
-        <p className="mt-1 text-xs text-gray-500">Copyright 2026. 양구DMO. All rights reserved.</p>
+        <p className="mt-6 text-xs text-gray-500">Copyright 2026. 양구DMO. All rights reserved.</p>
       </div>
     </footer>
   )

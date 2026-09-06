@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
+import { SHOW_VISIT_HISTORY, daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
 import { readPhotoAsFragment } from '../vision'
 import { formatDate, formatDuration, formatMonthKo, localDateIso } from '../utils'
 import { kindEmoji } from '../kinds'
@@ -117,7 +117,7 @@ export function MyYanggu() {
             <p className="text-sm font-bold text-sub">{new Date().getFullYear()}년의 양구</p>
             <h3 className="font-display mt-1 text-xl font-extrabold">모은 조각 {unique.length}개</h3>
           </div>
-          {visits > 0 ? <p className="text-sm font-bold text-gray-500">방문 {visits}번</p> : null}
+          {SHOW_VISIT_HISTORY && visits > 0 ? <p className="text-sm font-bold text-gray-500">방문 {visits}번</p> : null}
         </div>
         {unique.length === 0 ? (
           <p className="mt-4 text-sm text-gray-500">아직 기록된 양구가 없습니다. 사진 한 장이 첫 조각이 됩니다.</p>
@@ -132,7 +132,7 @@ export function MyYanggu() {
         )}
       </div>
 
-      {visits > 0 ? (
+      {SHOW_VISIT_HISTORY && visits > 0 ? (
         <div className="mt-10">
           <h3 className="font-display text-xl font-extrabold">이 군민증과 함께</h3>
           <p className="mt-1 text-sm text-gray-600">양구를 {visits}번 방문한 기록이 월별로 쌓입니다.</p>

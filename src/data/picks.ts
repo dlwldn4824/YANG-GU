@@ -128,6 +128,9 @@ export const COMMA_SPACES: CommaSpace[] = [
 
 export const COMMA_PARTNER_IDS = new Set(COMMA_SPACES.map((space) => space.partnerId))
 
+/** 웹 UI에서 쉼표 노출 여부. 데이터·로직은 유지한다. */
+export const SHOW_COMMA = false
+
 export function isCommaPartner(id: string) {
   return COMMA_PARTNER_IDS.has(id)
 }

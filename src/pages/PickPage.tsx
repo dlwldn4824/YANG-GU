@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BENEFITS } from '../data'
-import { PARTNER_GEO, WEEKLY_PICKS } from '../data/picks'
+import { PARTNER_GEO, SHOW_COMMA, WEEKLY_PICKS } from '../data/picks'
 import { formatDistance } from '../geo'
 import { fetchOsrmTrip } from '../osrm'
 import { formatTotalMinutes, formatWon, makeLeg, makeLegFromRoad, orderByRoute, type RouteLeg } from '../route'
@@ -165,10 +165,14 @@ export function PickPage() {
             />
             <div className="mt-2 grid gap-3">
               <Link
-                to="/nearby?comma=1"
+                to={SHOW_COMMA ? '/nearby?comma=1' : '/nearby'}
                 className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
               >
-                {story.linger ? '이 근처 쉼표 매장 보기' : '제휴 지도에서 쉼표 매장 보기'}
+                {SHOW_COMMA
+                  ? story.linger
+                    ? '이 근처 쉼표 매장 보기'
+                    : '제휴 지도에서 쉼표 매장 보기'
+                  : '제휴 매장 지도 보기'}
                 <Icon name="right" className="h-4 w-4" />
               </Link>
               <Link

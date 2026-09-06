@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { BENEFITS } from '../data'
-import { COMMA_SPACES, PARTNER_GEO, WEEKLY_PICKS, isCommaPartner } from '../data/picks'
+import { COMMA_SPACES, PARTNER_GEO, SHOW_COMMA, WEEKLY_PICKS, isCommaPartner } from '../data/picks'
 import { formatDistance, haversineMeters } from '../geo'
 import { fetchOsrmTrip } from '../osrm'
 import { useOrigin } from '../useOrigin'
@@ -18,7 +18,7 @@ export function NearbyPage() {
   const story = WEEKLY_PICKS.find((item) => item.id === pickId)
   const { origin, located, locating, error, locate } = useOrigin()
   const [selected, setSelected] = useState<string | null>(null)
-  const filter = params.get('comma') === '1' ? 'comma' : 'all'
+  const filter = SHOW_COMMA && params.get('comma') === '1' ? 'comma' : 'all'
 
   const items = useMemo(() => {
     const filtered = BENEFITS.filter((benefit) => {
@@ -75,13 +75,15 @@ export function NearbyPage() {
         desc={
           story
             ? story.line
-            : '군민증으로 할인되는 곳입니다. 주황 핀은 오래 머물 수 있는 매장입니다.'
+            : SHOW_COMMA
+              ? '군민증으로 할인되는 곳입니다. 주황 핀은 오래 머물 수 있는 매장입니다.'
+              : '군민증으로 할인되는 곳입니다.'
         }
       />
       <main className="wrap py-6">
         <p className="text-sm font-semibold text-gray-600">
           {filter === 'comma' ? `쉼표 지원 매장 ${items.length}곳` : `제휴점 ${items.length}곳`}
-          {commaCount > 0 && filter === 'all' ? ` · 쉼표 ${commaCount}곳` : ''}
+          {SHOW_COMMA && commaCount > 0 && filter === 'all' ? ` · 쉼표 ${commaCount}곳` : ''}
           {nearest ? ` · 가장 가까운 곳 ${formatDistance(nearest.meters)}` : ''}
         </p>
 
@@ -97,7 +99,7 @@ export function NearbyPage() {
         </div>
         {error ? <p className="mt-2 text-xs text-gray-500">{error} 양구읍을 기준으로 보여드립니다.</p> : null}
 
-        {!story ? (
+        {SHOW_COMMA && !story ? (
           <div className="mt-4 flex gap-2">
             <FilterChip active={filter === 'all'} onClick={() => navigate('/nearby')} label="전체 제휴" />
             <FilterChip
@@ -115,19 +117,21 @@ export function NearbyPage() {
               pins={items.map((item) => ({
                 id: item.id,
                 point: PARTNER_GEO[item.id],
-                label: item.comma ? '쉼표' : item.category,
-                tone: item.comma ? 'comma' : 'partner',
+                label: SHOW_COMMA && item.comma ? '쉼표' : item.category,
+                tone: SHOW_COMMA && item.comma ? 'comma' : 'partner',
               }))}
               selectedId={activeId}
               onSelect={setSelected}
               path={path}
-              badge={filter === 'comma' ? '쉼표 매장' : '제휴 지도'}
+              badge={SHOW_COMMA && filter === 'comma' ? '쉼표 매장' : '제휴 지도'}
               className="h-72 lg:h-[min(70vh,40rem)]"
             />
-            <p className="mt-2 text-[11px] text-gray-500">
-              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-point align-middle" /> 쉼표 지원
-              <span className="ml-3 mr-1 inline-block h-2 w-2 rounded-full bg-main align-middle" /> 제휴점
-            </p>
+            {SHOW_COMMA ? (
+              <p className="mt-2 text-[11px] text-gray-500">
+                <span className="mr-1 inline-block h-2 w-2 rounded-full bg-point align-middle" /> 쉼표 지원
+                <span className="ml-3 mr-1 inline-block h-2 w-2 rounded-full bg-main align-middle" /> 제휴점
+              </p>
+            ) : null}
           </div>
           <div>
             <PartnerNearList items={items} selectedId={activeId} onSelect={setSelected} />

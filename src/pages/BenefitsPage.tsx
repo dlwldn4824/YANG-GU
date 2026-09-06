@@ -4,6 +4,7 @@ import { PageHeader } from '../components/PageHeader'
 import { BenefitCard } from '../components/BenefitCard'
 import { Icon } from '../components/Icon'
 import { BENEFITS, CATEGORIES } from '../data'
+import { SHOW_COMMA } from '../data/picks'
 import type { Category } from '../types'
 
 export function BenefitsPage() {
@@ -35,7 +36,7 @@ export function BenefitsPage() {
     <>
       <PageHeader kicker="혜택" title="군민증으로 받는 할인" desc="현장에서 군민증과 신분증을 함께 보여 주세요." />
       <main className="wrap py-8">
-        <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <div className={`mb-5 grid gap-3 ${SHOW_COMMA ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
           <Link
             to="/nearby"
             className="flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
@@ -43,13 +44,15 @@ export function BenefitsPage() {
             제휴 매장 지도
             <Icon name="right" className="h-4 w-4" />
           </Link>
-          <Link
-            to="/nearby?comma=1"
-            className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
-          >
-            쉼표 지원 매장
-            <Icon name="right" className="h-4 w-4" />
-          </Link>
+          {SHOW_COMMA ? (
+            <Link
+              to="/nearby?comma=1"
+              className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
+            >
+              쉼표 지원 매장
+              <Icon name="right" className="h-4 w-4" />
+            </Link>
+          ) : null}
           <Link
             to="/food"
             className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3 text-sm font-bold text-gray-700"
