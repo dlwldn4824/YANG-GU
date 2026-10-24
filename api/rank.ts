@@ -9,9 +9,15 @@ const MAX_XP = 500_000
 
 type Command = (string | number)[]
 
+// Vercel에서 Upstash를 연결할 때 접두어를 바꾸면 이름이 STORAGE_KV_REST_API_URL 처럼 달라진다.
 function redisEnv() {
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN
+  const env = process.env
+  const urlKey = Object.keys(env).find(
+    (key) => /(^|_)KV_REST_API_URL$/.test(key) || /(^|_)REDIS_REST_URL$/.test(key),
+  )
+  if (!urlKey) return null
+  const token = env[urlKey.replace(/_URL$/, '_TOKEN')]
+  const url = env[urlKey]
   return url && token ? { url, token } : null
 }
 
