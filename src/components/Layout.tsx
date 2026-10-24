@@ -6,16 +6,14 @@ import { Icon } from './Icon'
 const DESKTOP_NAV: { to: string; label: string }[] = [
   { to: '/', label: '홈' },
   { to: '/pick', label: '추천' },
-  { to: '/nearby', label: '제휴지도' },
-  { to: '/yanggu', label: '배꼬비' },
+  { to: '/yanggu', label: '배꼬비 키우기' },
   { to: '/card', label: '내 군민증' },
 ]
 
 const MOBILE_NAV: { to: string; label: string; icon: ComponentProps<typeof Icon>['name'] }[] = [
   { to: '/', label: '홈', icon: 'leaf' },
   { to: '/pick', label: '추천', icon: 'gift' },
-  { to: '/nearby', label: '제휴지도', icon: 'pin' },
-  { to: '/yanggu', label: '배꼬비', icon: 'buddy' },
+  { to: '/yanggu', label: '키우기', icon: 'star' },
   { to: '/card', label: '내 군민증', icon: 'id' },
 ]
 
@@ -139,8 +137,7 @@ function SiteFooter() {
         <img src="/assets/ui/dmo-logo.png" alt="양구 DMO" className="h-10 w-auto" />
         <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-main">
           <NavLink to="/pick">추천</NavLink>
-          <NavLink to="/nearby">제휴지도</NavLink>
-          <NavLink to="/yanggu">배꼬비</NavLink>
+          <NavLink to="/yanggu">배꼬비 키우기</NavLink>
           <NavLink to="/card">내 군민증</NavLink>
           <NavLink to="/faq">FAQ</NavLink>
         </nav>

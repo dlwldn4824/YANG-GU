@@ -5,8 +5,7 @@ import { useAuth } from '../auth'
 
 const MENU = [
   { to: '/pick', title: '추천', line: '이번 주 양구에서 해볼 만한 것' },
-  { to: '/nearby', title: '제휴지도', line: '제휴 매장과 오래 머물 곳' },
-  { to: '/yanggu', title: '배꼬비', line: '사진으로 남긴 양구 방문' },
+  { to: '/yanggu', title: '배꼬비 키우기', line: '걷고 부스 QR을 찍으면 배꼬비가 자라요' },
   { to: '/card', title: '내 군민증', line: '카드 제시와 오늘의 기록' },
 ]
 

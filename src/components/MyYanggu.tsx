@@ -1,15 +1,19 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { SHOW_VISIT_HISTORY, daySpan, todayFragments, uniqueColors, uniqueKinds, useJournal, visitDays, visitMonths } from '../journal'
+import { companionSpeech, posterCaption } from '../companion'
 import { readPhotoAsFragment } from '../vision'
 import { formatDate, formatDuration, formatMonthKo, localDateIso } from '../utils'
 import { kindEmoji } from '../kinds'
-import { Icon } from './Icon'
+import { useAuth } from '../auth'
+import { useDaySteps } from '../steps'
 import { KindChips } from './KindChips'
+import { YangguPoster } from './YangguPoster'
 import type { YangguFragment } from '../types'
 
 export function MyYanggu() {
+  const { citizen } = useAuth()
   const { fragments, addFragment } = useJournal()
+  const { steps } = useDaySteps()
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -18,8 +22,10 @@ export function MyYanggu() {
   const months = visitMonths(fragments)
   const unique = uniqueKinds(fragments)
   const visits = visitDays(fragments)
-  const palette = uniqueColors(fragments)
-  const previews = fragments.filter((item) => item.thumb).slice(0, 3)
+  const palette = uniqueColors(today.length > 0 ? today : fragments)
+  const kinds = uniqueKinds(today).map((item) => item.kind)
+  const moments = (today.length > 0 ? today : fragments).slice(0, 6)
+  const speech = companionSpeech('배꼬비', steps, kinds, palette[0]?.name)
 
   const onFile = async (file?: File) => {
     if (!file) return
@@ -37,9 +43,15 @@ export function MyYanggu() {
 
   return (
     <section id="yanggu" className="scroll-mt-24">
-      <p className="text-sm font-bold text-sub">나의 양구</p>
+      <p className="text-sm font-bold text-sub">기록</p>
       <h2 className="font-display mt-1 text-2xl font-extrabold">군민증에 남은 하루</h2>
-      <p className="mt-2 text-sm text-gray-600">할 일을 채우는 대신, 이미 한 하루가 군민증에 남습니다.</p>
+      <p className="mt-2 text-sm text-gray-600">사진과 걸음이 내 군민증 기록으로 남습니다.</p>
+
+      <p className="mt-5 text-sm font-bold">오늘 양구에서 남긴 발자국</p>
+      <p className="font-display mt-1 text-3xl font-extrabold tracking-tight">
+        {steps.toLocaleString('ko-KR')}
+        <span className="ml-1 text-lg font-bold">걸음</span>
+      </p>
 
       <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-5">
         <p className="text-sm font-bold">{formatDate(localDateIso())}</p>
@@ -163,28 +175,40 @@ export function MyYanggu() {
         </div>
       ) : null}
 
-      <Link to="/yanggu" className="mt-8 block overflow-hidden rounded-3xl">
-        {previews.length > 0 ? (
-          <div className={`grid ${previews.length === 1 ? 'grid-cols-1' : 'grid-cols-3'}`}>
-            {previews.map((item) => (
-              <img key={item.id} src={item.thumb} alt="" className="aspect-[4/3] h-24 w-full object-cover sm:h-28" />
-            ))}
+      {palette.length > 0 ? (
+        <div className="mt-8">
+          <p className="text-sm font-bold">오늘 발견한 양구색</p>
+          <div className="mt-3 overflow-hidden rounded-2xl">
+            <div className="flex h-10">
+              {palette.map((swatch) => (
+                <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
+              ))}
+            </div>
           </div>
-        ) : palette.length > 0 ? (
-          <div className="flex h-10">
-            {palette.map((swatch) => (
-              <span key={swatch.hex} className="flex-1" style={{ background: swatch.hex }} />
-            ))}
-          </div>
-        ) : null}
-        <div className="flex items-center justify-between bg-main px-4 py-4 text-white">
-          <div>
-            <p className="text-[11px] font-bold tracking-wide text-white/80">사진으로 남긴 양구 방문</p>
-            <p className="font-display mt-0.5 text-lg font-extrabold">양구 기록 보기</p>
-          </div>
-          <Icon name="right" className="h-5 w-5" />
         </div>
-      </Link>
+      ) : null}
+
+      <div className="mt-10">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-xl font-extrabold">오늘 만든 카드</h3>
+          <button type="button" onClick={() => window.print()} className="text-sm font-bold text-main">
+            저장
+          </button>
+        </div>
+        <div className="mt-4">
+          <YangguPoster
+            name={citizen?.name ?? '나의'}
+            date={localDateIso()}
+            steps={steps}
+            colors={palette.slice(0, 6)}
+            moments={moments}
+            kinds={kinds}
+            companionId={citizen?.companion}
+            caption={posterCaption(steps, kinds)}
+            speech={speech}
+          />
+        </div>
+      </div>
     </section>
   )
 }

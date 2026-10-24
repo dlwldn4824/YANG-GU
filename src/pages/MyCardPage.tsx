@@ -70,12 +70,6 @@ export function MyCardPage() {
                   >
                     사이버 군민증 인쇄 <Icon name="printer" className="h-5 w-5" />
                   </button>
-                  <Link
-                    to="/yanggu"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-bold text-gray-700"
-                  >
-                    양구 기록 보기 <Icon name="right" className="h-5 w-5" />
-                  </Link>
                 </>
               ) : (
                 <Link

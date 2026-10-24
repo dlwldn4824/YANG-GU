@@ -1,7 +1,7 @@
 import type { Citizen, ColorSwatch, YangguFragment, YangguKind } from '../types'
 
 const SEED_KEY = 'yanggu-demo-seed'
-const SEED_VERSION = 'issued-v5'
+const SEED_VERSION = 'issued-v6'
 const CITIZEN_KEY = 'yanggu-cyber-citizen'
 const FRAGMENT_KEY = 'yanggu-fragments'
 const STEPS_KEY = 'yanggu-day-steps'
@@ -240,7 +240,12 @@ export function ensureDemoData() {
     if (localStorage.getItem(SEED_KEY) === SEED_VERSION) return
     localStorage.setItem(CITIZEN_KEY, JSON.stringify(DEMO_CITIZEN))
     localStorage.setItem(FRAGMENT_KEY, JSON.stringify(DEMO_FRAGMENTS))
-    localStorage.setItem(STEPS_KEY, JSON.stringify({ '2026-08-27': 4281 }))
+    // 걸음은 배꼬비 레벨과 랭킹에 쓰이므로 시연용 걸음을 넣지 않고, 예전에 넣은 것도 뺀다.
+    const steps = JSON.parse(localStorage.getItem(STEPS_KEY) ?? '{}') as Record<string, number>
+    if (steps['2026-08-27'] === 4281) {
+      delete steps['2026-08-27']
+      localStorage.setItem(STEPS_KEY, JSON.stringify(steps))
+    }
     localStorage.setItem(SEED_KEY, SEED_VERSION)
   } catch {
     // 로컬 저장을 쓸 수 없으면 앱 초기값에서 다시 넣는다
