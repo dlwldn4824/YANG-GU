@@ -12,7 +12,7 @@ import { useRanking } from '../rank'
 export function FilmPage() {
   const { citizen } = useAuth()
   const { fragments } = useJournal()
-  const { steps, totalSteps, walking, source, error, startWalk, stopWalk, addSteps } = useDaySteps()
+  const { steps, totalSteps, walking, walkSteps, paused, source, error, startWalk, stopWalk, addSteps } = useDaySteps()
   const { growth, fed, snacks, petted, feed, pet, visitCount, visitedToday, levelUp, ackLevelUp } = useBaekkobi(totalSteps)
   const ranking = useRanking(growth.xp, growth.level)
   // 부스 시연용: /yanggu?demo
@@ -59,9 +59,23 @@ export function FilmPage() {
           <Stat label="오늘 부스" value={`${visitedToday.length}곳`} />
         </div>
         {walking ? (
-          <p className="mt-3 text-center text-xs font-bold text-main">
-            산책 중 · {source === 'motion' ? '휴대폰 움직임으로 세는 중' : '위치로 세는 중'} · 화면을 켜 두세요
-          </p>
+          <div className="mt-3 rounded-2xl bg-white px-4 py-3 text-center">
+            <p className="text-sm font-extrabold text-main">
+              이번 산책 {walkSteps.toLocaleString('ko-KR')}걸음
+            </p>
+            <p className="mt-1 text-xs text-gray-500">
+              {source === 'gps'
+                ? '이 기기는 움직임 센서가 없어서 위치로 세고 있어요.'
+                : '휴대폰을 손에 들거나 주머니에 넣고 걸어 주세요. 몇 걸음 걸으면 세기 시작해요.'}
+            </p>
+            {paused ? (
+              <p className="mt-1 text-xs font-bold text-point">
+                화면이 꺼지거나 다른 앱에 있던 동안은 세지 못했어요.
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-500">산책 중에는 이 사이트를 켜 둬야 걸음이 세져요.</p>
+            )}
+          </div>
         ) : null}
 
         <div className="mt-5 grid grid-cols-3 gap-2">

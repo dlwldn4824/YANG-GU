@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { haversineMeters } from './geo'
+import { Pedometer } from './pedometer'
 import { localDateIso } from './utils'
 import type { GeoPoint } from './types'
 
 const KEY = 'yanggu-day-steps'
 const METERS_PER_STEP = 0.72
-// 가속도 크기가 이 값을 넘었다가 내려오면 한 걸음으로 센다 (m/s²).
-const STEP_PEAK = 11.2
-const STEP_GAP_MS = 280
 
 type Store = Record<string, number>
 
 export type StepSource = 'motion' | 'gps'
 
 type MotionPermission = { requestPermission?: () => Promise<'granted' | 'denied'> }
+type WakeLock = { release: () => Promise<void> }
+type WakeLockNavigator = Navigator & { wakeLock?: { request: (type: 'screen') => Promise<WakeLock> } }
 
 function readStore(): Store {
   try {
@@ -58,28 +58,49 @@ async function motionAllowed() {
   }
 }
 
-export function useDaySteps() {
+function useStepsState() {
   const date = localDateIso()
   const [steps, setSteps] = useState(() => loadDaySteps(date))
   const [pastSteps] = useState(() => loadPastSteps(date))
   const [walking, setWalking] = useState(false)
+  const [walkSteps, setWalkSteps] = useState(0)
   const [source, setSource] = useState<StepSource | null>(null)
   const [error, setError] = useState('')
+  const [paused, setPaused] = useState(false)
   const watchRef = useRef<number | null>(null)
   const lastRef = useRef<GeoPoint | null>(null)
   const motionRef = useRef<((e: DeviceMotionEvent) => void) | null>(null)
   const sawMotionRef = useRef(false)
+  const wakeRef = useRef<WakeLock | null>(null)
 
-  const setAndSave = useCallback(
-    (next: number | ((prev: number) => number)) => {
+  const add = useCallback(
+    (n: number) => {
+      if (n <= 0) return
       setSteps((prev) => {
-        const value = typeof next === 'function' ? next(prev) : next
+        const value = prev + n
         saveDaySteps(date, value)
         return value
       })
+      setWalkSteps((prev) => prev + n)
     },
     [date],
   )
+
+  // 산책 중에는 화면이 꺼지지 않게 한다. 꺼지면 센서도 멈춘다.
+  const keepAwake = useCallback(async () => {
+    const lock = (navigator as WakeLockNavigator).wakeLock
+    if (!lock || wakeRef.current) return
+    try {
+      wakeRef.current = await lock.request('screen')
+    } catch {
+      wakeRef.current = null
+    }
+  }, [])
+
+  const releaseAwake = useCallback(() => {
+    void wakeRef.current?.release().catch(() => {})
+    wakeRef.current = null
+  }, [])
 
   const stopGps = useCallback(() => {
     if (watchRef.current != null) {
@@ -99,13 +120,15 @@ export function useDaySteps() {
   const stopWalk = useCallback(() => {
     stopGps()
     stopMotion()
+    releaseAwake()
     setWalking(false)
+    setPaused(false)
     setSource(null)
-  }, [stopGps, stopMotion])
+  }, [stopGps, stopMotion, releaseAwake])
 
   const startGps = useCallback(() => {
     if (!navigator.geolocation) {
-      setError('이 브라우저는 걷기를 기록할 수 없습니다.')
+      setError('이 기기는 걸음을 셀 수 없어요.')
       setWalking(false)
       return
     }
@@ -118,33 +141,21 @@ export function useDaySteps() {
         if (!prev) return
         const meters = haversineMeters(prev, point)
         if (meters < 4 || meters > 80) return
-        setAndSave((n) => n + meters / METERS_PER_STEP)
+        add(Math.round(meters / METERS_PER_STEP))
       },
-      () => setError('위치를 가져오지 못했습니다. 걸음은 지금까지 기록된 만큼만 남습니다.'),
+      () => setError('위치를 가져오지 못했어요. 걸음은 지금까지 센 만큼만 남아요.'),
       { enableHighAccuracy: true, maximumAge: 3000, timeout: 12000 },
     )
-  }, [setAndSave])
+  }, [add])
 
   const startMotion = useCallback(() => {
-    let smooth = 9.8
-    let above = false
-    let lastStep = 0
+    const pedometer = new Pedometer()
     sawMotionRef.current = false
     const onMotion = (e: DeviceMotionEvent) => {
       const a = e.accelerationIncludingGravity
       if (a?.x == null || a.y == null || a.z == null) return
       sawMotionRef.current = true
-      smooth = smooth * 0.75 + Math.hypot(a.x, a.y, a.z) * 0.25
-      if (!above && smooth > STEP_PEAK) {
-        above = true
-        const now = e.timeStamp
-        if (now - lastStep > STEP_GAP_MS) {
-          lastStep = now
-          setAndSave((n) => n + 1)
-        }
-      } else if (above && smooth < 10.2) {
-        above = false
-      }
+      add(pedometer.push(a.x, a.y, a.z, e.timeStamp))
     }
     motionRef.current = onMotion
     window.addEventListener('devicemotion', onMotion)
@@ -156,16 +167,33 @@ export function useDaySteps() {
         startGps()
       }
     }, 2500)
-  }, [setAndSave, startGps, stopMotion])
+  }, [add, startGps, stopMotion])
 
   const startWalk = useCallback(async () => {
     setError('')
+    setPaused(false)
+    setWalkSteps(0)
     setWalking(true)
-    if (await motionAllowed()) startMotion()
+    const allowed = await motionAllowed()
+    void keepAwake()
+    if (allowed) startMotion()
     else startGps()
-  }, [startGps, startMotion])
+  }, [keepAwake, startGps, startMotion])
 
-  const addSteps = useCallback((n: number) => setAndSave((prev) => prev + n), [setAndSave])
+  // 다른 앱으로 가거나 화면이 꺼지면 센서가 멈춘다. 돌아오면 다시 화면을 깨워 둔다.
+  useEffect(() => {
+    if (!walking) return
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        wakeRef.current = null
+        setPaused(true)
+      } else {
+        void keepAwake()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [walking, keepAwake])
 
   useEffect(() => () => stopWalk(), [stopWalk])
 
@@ -173,10 +201,28 @@ export function useDaySteps() {
     steps: Math.round(steps),
     totalSteps: Math.round(pastSteps + steps),
     walking,
+    walkSteps,
+    paused,
     source,
     error,
     startWalk,
     stopWalk,
-    addSteps,
+    addSteps: add,
   }
+}
+
+type StepsValue = ReturnType<typeof useStepsState>
+
+const StepsContext = createContext<StepsValue | null>(null)
+
+// 산책은 앱 전체에서 하나로 돌아서, 부스 QR 화면으로 넘어가도 계속 센다.
+export function StepsProvider({ children }: { children: ReactNode }) {
+  const state = useStepsState()
+  return <StepsContext.Provider value={state}>{children}</StepsContext.Provider>
+}
+
+export function useDaySteps() {
+  const ctx = useContext(StepsContext)
+  if (!ctx) throw new Error('StepsProvider가 필요합니다.')
+  return ctx
 }

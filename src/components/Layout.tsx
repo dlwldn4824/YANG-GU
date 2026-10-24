@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, type ComponentProps } from 'react'
 import { useAuth } from '../auth'
 import { Icon } from './Icon'
+import { WalkPill } from './WalkPill'
 
 const DESKTOP_NAV: { to: string; label: string }[] = [
   { to: '/', label: '홈' },
@@ -95,6 +96,7 @@ export function Layout() {
       </header>
 
       <Outlet />
+      <WalkPill />
 
       <SiteFooter />
 

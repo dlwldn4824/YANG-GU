@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth'
 import { JournalProvider } from './journal'
+import { StepsProvider } from './steps'
 import { Layout } from './components/Layout'
 import { IntroPage } from './pages/IntroPage'
 import { BenefitsPage } from './pages/BenefitsPage'
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <AuthProvider>
       <JournalProvider>
+        <StepsProvider>
         <BrowserRouter>
           <Routes>
             <Route element={<Layout />}>
@@ -41,6 +43,7 @@ export default function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        </StepsProvider>
       </JournalProvider>
     </AuthProvider>
   )
