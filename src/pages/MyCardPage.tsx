@@ -8,6 +8,8 @@ import { useAuth } from '../auth'
 import { useJournal } from '../journal'
 import { formatDate } from '../utils'
 
+const OFFICIAL_CYBER_URL = 'https://yanggudmo.co.kr/dmo_cyber'
+
 export function MyCardPage() {
   const { citizen } = useAuth()
   const { fragments } = useJournal()
@@ -42,6 +44,18 @@ export function MyCardPage() {
             <p className="text-gray-600">
               사이버 양구군민이 되어 양구 관광지·음식점·카페 등 다양한 할인 혜택을 만나보세요!
             </p>
+            <a
+              href={OFFICIAL_CYBER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 flex items-center justify-between rounded-2xl bg-main px-5 py-4 text-sm font-bold text-white"
+            >
+              <span>
+                양구DMO 공식 사이버 군민증 바로가기
+                <span className="mt-0.5 block text-xs font-semibold text-white/75">실제 발급·혜택 안내는 공식 사이트에서</span>
+              </span>
+              <Icon name="right" className="h-4 w-4 shrink-0" />
+            </a>
 
             {citizen ? (
               <div className="mt-6 rounded-2xl bg-main-50 p-4 text-sm">
