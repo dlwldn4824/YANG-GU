@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { OfficialSignup } from '../components/OfficialSignup'
 import { useAuth } from '../auth'
 import { CARD_DESIGNS } from '../data'
 import type { CardDesign } from '../types'
@@ -51,8 +52,9 @@ export function SignupPage() {
 
   return (
     <>
-      <PageHeader title="사이버 군민증 만들기" desc="가입하면 군민증이 바로 나오고, 배꼬비 랭킹에도 이 이름으로 올라가요." />
+      <PageHeader title="배꼬비 계정 만들기" desc="공식 군민증을 받았다면, 같은 이메일로 가입해 배꼬비를 키우고 랭킹에 참가하세요." />
       <main className="mx-auto max-w-md px-4 py-8">
+        <OfficialSignup />
         <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
           <label className="block">
             <span className="text-sm font-bold">이름</span>
@@ -72,7 +74,7 @@ export function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              placeholder="로그인할 때 써요"
+              placeholder="공식 군민증에 쓴 이메일"
               className={`mt-1 ${input}`}
             />
           </label>
@@ -132,7 +134,7 @@ export function SignupPage() {
             disabled={busy}
             className="w-full rounded-full bg-main py-3 font-bold text-white disabled:opacity-60"
           >
-            {busy ? '군민증 만드는 중...' : '가입하고 군민증 받기'}
+            {busy ? '가입하는 중...' : '가입하기'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">

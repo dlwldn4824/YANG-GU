@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { OfficialSignup } from '../components/OfficialSignup'
 import { useAuth } from '../auth'
 import { nextPath } from '../utils'
 
@@ -33,6 +34,7 @@ export function LoginPage() {
     <>
       <PageHeader title="군민증 불러오기" desc="가입한 이메일로 로그인하면 어느 휴대폰에서든 내 군민증을 불러와요." />
       <main className="mx-auto max-w-md px-4 py-8">
+        <OfficialSignup />
         <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
           <input
             type="email"
@@ -60,9 +62,9 @@ export function LoginPage() {
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
-          아직 군민증이 없나요?{' '}
+          여기서 처음이라면{' '}
           <Link to={`/signup${params.get('next') ? `?next=${encodeURIComponent(params.get('next')!)}` : ''}`} className="font-bold text-main">
-            1분 만에 가입하기
+            배꼬비 계정 만들기
           </Link>
         </p>
       </main>
