@@ -14,6 +14,7 @@ import { PickIndexPage } from './pages/PickIndexPage'
 import { PickPage } from './pages/PickPage'
 import { FilmPage } from './pages/FilmPage'
 import { ScanPage } from './pages/ScanPage'
+import { StatsPage } from './pages/StatsPage'
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
               <Route path="/card" element={<MyCardPage />} />
               <Route path="/yanggu" element={<FilmPage />} />
               <Route path="/q/:boothId" element={<ScanPage />} />
+              <Route path="/stats" element={<StatsPage />} />
               <Route path="/film" element={<Navigate to="/yanggu" replace />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/login" element={<LoginPage />} />

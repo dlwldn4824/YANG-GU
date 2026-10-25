@@ -23,11 +23,14 @@ function write(key: string, value: string) {
   }
 }
 
-// 이 휴대폰의 랭커 번호. 처음 들어왔을 때 한 번 만든다.
-function rankerId() {
+// 이 휴대폰의 번호. 처음 들어왔을 때 한 번 만들고, 랭킹과 방문 기록에 같이 쓴다.
+export function rankerId() {
   const saved = read(ID_KEY)
   if (saved) return saved
-  const id = crypto.randomUUID()
+  const id =
+    typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
   write(ID_KEY, id)
   return id
 }

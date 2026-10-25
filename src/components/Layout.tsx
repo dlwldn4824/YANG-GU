@@ -3,6 +3,7 @@ import { useEffect, type ComponentProps } from 'react'
 import { useAuth } from '../auth'
 import { Icon } from './Icon'
 import { WalkPill } from './WalkPill'
+import { useVisitLog } from '../visit'
 
 const DESKTOP_NAV: { to: string; label: string }[] = [
   { to: '/', label: '홈' },
@@ -28,6 +29,7 @@ export function Layout() {
   const { citizen, logout } = useAuth()
   const location = useLocation()
   const hideChrome = location.pathname === '/present'
+  useVisitLog()
 
   useEffect(() => {
     if (location.hash) return
