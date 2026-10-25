@@ -1,48 +1,15 @@
 // 배꼬비 랭킹 API (Vercel Function + Upstash Redis)
-// GET  /api/rank?id=<rankerId>        → 상위 랭커와 내 순위
-// POST /api/rank { id, name, xp, level } → 내 점수 올리기
+// GET  /api/rank?id=<계정 id>                                  → 상위 랭커와 내 순위
+// POST /api/rank { xp, level } (Authorization: Bearer <token>) → 로그인한 계정의 점수 올리기
+// 이름과 계정 id는 로그인 정보에서 가져오므로 다른 사람 이름으로 점수를 올릴 수 없다.
 
-const BOARD = 'kkobi:rank'
-const PROFILE = 'kkobi:profile'
+import { fail, json, redis, userFromRequest } from './_redis.js'
+
+// 계정 기준으로 바꾸면서 휴대폰 기준이던 예전 랭킹과 분리했다.
+const BOARD = 'kkobi:rank:v2'
+const PROFILE = 'kkobi:profile:v2'
 const TOP = 20
 const MAX_XP = 500_000
-
-type Command = (string | number)[]
-
-// Vercel에서 Upstash를 연결할 때 접두어를 바꾸면 이름이 STORAGE_KV_REST_API_URL 처럼 달라진다.
-function redisEnv() {
-  const env = process.env
-  const urlKey = Object.keys(env).find(
-    (key) => /(^|_)KV_REST_API_URL$/.test(key) || /(^|_)REDIS_REST_URL$/.test(key),
-  )
-  if (!urlKey) return null
-  const token = env[urlKey.replace(/_URL$/, '_TOKEN')]
-  const url = env[urlKey]
-  return url && token ? { url, token } : null
-}
-
-async function redis(commands: Command[]) {
-  const env = redisEnv()
-  if (!env) throw new Error('no-redis')
-  const res = await fetch(`${env.url}/pipeline`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(commands),
-  })
-  if (!res.ok) throw new Error(`redis ${res.status}`)
-  const rows = (await res.json()) as { result?: unknown; error?: string }[]
-  return rows.map((row) => {
-    if (row.error) throw new Error(row.error)
-    return row.result
-  })
-}
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  })
-}
 
 function validId(id: unknown): id is string {
   return typeof id === 'string' && /^[a-zA-Z0-9-]{8,48}$/.test(id)
@@ -77,33 +44,40 @@ export async function GET(request: Request) {
     const me = rank == null ? null : { rank: Number(rank) + 1, xp: Number(score) }
     return json({ top, me })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'error'
-    return json({ error: message }, message === 'no-redis' ? 503 : 500)
+    return fail(error)
   }
 }
 
 export async function POST(request: Request) {
-  let body: { id?: unknown; name?: unknown; xp?: unknown; level?: unknown }
+  let body: { xp?: unknown; level?: unknown }
   try {
     body = await request.json()
   } catch {
     return json({ error: 'bad-json' }, 400)
   }
-  const name = typeof body.name === 'string' ? body.name.trim().slice(0, 12) : ''
   const xp = Math.round(Number(body.xp))
   const level = Math.round(Number(body.level))
-  if (!validId(body.id) || !name || !Number.isFinite(xp) || xp < 0 || xp > MAX_XP || level < 1 || level > 5) {
+  if (!Number.isFinite(xp) || xp < 0 || xp > MAX_XP || !(level >= 1 && level <= 5)) {
     return json({ error: 'bad-input' }, 400)
   }
   try {
-    const [, , rank] = await redis([
-      ['ZADD', BOARD, xp, body.id],
-      ['HSET', PROFILE, body.id, JSON.stringify({ name, level })],
-      ['ZREVRANK', BOARD, body.id],
-    ])
-    return json({ me: { rank: Number(rank) + 1, xp } })
+    const user = await userFromRequest(request)
+    if (!user) return json({ error: 'not-logged-in' }, 401)
+    // 다른 휴대폰에서 더 높게 올린 점수가 있으면 낮은 점수로 덮어쓰지 않는다.
+    const [before] = await redis([['ZSCORE', BOARD, user.id]])
+    const higher = before == null || xp >= Number(before)
+    const [rank, score] = await redis([
+      ...(higher
+        ? [
+            ['ZADD', BOARD, xp, user.id],
+            ['HSET', PROFILE, user.id, JSON.stringify({ name: user.name, level })],
+          ]
+        : []),
+      ['ZREVRANK', BOARD, user.id],
+      ['ZSCORE', BOARD, user.id],
+    ]).then((rows) => rows.slice(-2))
+    return json({ me: { rank: Number(rank) + 1, xp: Number(score) } })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'error'
-    return json({ error: message }, message === 'no-redis' ? 503 : 500)
+    return fail(error)
   }
 }

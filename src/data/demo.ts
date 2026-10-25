@@ -1,7 +1,7 @@
 import type { Citizen, ColorSwatch, YangguFragment, YangguKind } from '../types'
 
 const SEED_KEY = 'yanggu-demo-seed'
-const SEED_VERSION = 'issued-v6'
+const SEED_VERSION = 'issued-v7'
 const CITIZEN_KEY = 'yanggu-cyber-citizen'
 const FRAGMENT_KEY = 'yanggu-fragments'
 const STEPS_KEY = 'yanggu-day-steps'
@@ -238,7 +238,8 @@ export const DEMO_FRAGMENTS: YangguFragment[] = [
 export function ensureDemoData() {
   try {
     if (localStorage.getItem(SEED_KEY) === SEED_VERSION) return
-    localStorage.setItem(CITIZEN_KEY, JSON.stringify(DEMO_CITIZEN))
+    // 군민증은 회원가입해야 생긴다. 예전에 넣어 둔 데모 군민증(이지우)은 지운다.
+    if (!localStorage.getItem('yanggu-auth-token')) localStorage.removeItem(CITIZEN_KEY)
     localStorage.setItem(FRAGMENT_KEY, JSON.stringify(DEMO_FRAGMENTS))
     // 걸음은 배꼬비 레벨과 랭킹에 쓰이므로 시연용 걸음을 넣지 않고, 예전에 넣은 것도 뺀다.
     const steps = JSON.parse(localStorage.getItem(STEPS_KEY) ?? '{}') as Record<string, number>

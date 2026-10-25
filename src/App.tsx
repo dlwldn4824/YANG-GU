@@ -8,6 +8,7 @@ import { BenefitsPage } from './pages/BenefitsPage'
 import { MyCardPage } from './pages/MyCardPage'
 import { FaqPage } from './pages/FaqPage'
 import { LoginPage } from './pages/LoginPage'
+import { SignupPage } from './pages/SignupPage'
 import { PresentPage } from './pages/PresentPage'
 import { FoodPage } from './pages/FoodPage'
 import { PickIndexPage } from './pages/PickIndexPage'
@@ -32,7 +33,7 @@ export default function App() {
               <Route path="/benefits" element={<BenefitsPage />} />
               <Route path="/nearby" element={<Navigate to="/" replace />} />
               <Route path="/food" element={<FoodPage />} />
-              <Route path="/issue" element={<Navigate to="/card" replace />} />
+              <Route path="/issue" element={<Navigate to="/signup" replace />} />
               <Route path="/card" element={<MyCardPage />} />
               <Route path="/yanggu" element={<FilmPage />} />
               <Route path="/q/:boothId" element={<ScanPage />} />
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/film" element={<Navigate to="/yanggu" replace />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="/present" element={<PresentPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

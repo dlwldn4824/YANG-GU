@@ -93,6 +93,7 @@ export type YangguFragment = {
 }
 
 export type Citizen = {
+  id?: string
   name: string
   email: string
   password: string

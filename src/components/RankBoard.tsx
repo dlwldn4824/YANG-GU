@@ -1,31 +1,20 @@
-import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth'
 import type { MyRank, Ranker } from '../rank'
 import { CompanionSprite } from './CompanionSprite'
 
 type Props = {
   id: string
   joined: boolean
-  loggedIn: boolean
   top: Ranker[]
   me: MyRank | null
   error: string
   myName: string
   myLevel: number
-  onJoin: (name: string) => void
 }
 
-export function RankBoard({ id, joined, loggedIn, top, me, error, myName, myLevel, onJoin }: Props) {
-  const { citizen } = useAuth()
-  const [draft, setDraft] = useState(citizen?.name ?? '')
+export function RankBoard({ id, joined, top, me, error, myName, myLevel }: Props) {
   const shown = top.slice(0, 10)
   const meShown = shown.some((item) => item.id === id)
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    onJoin(draft)
-  }
 
   return (
     <section className="mt-8">
@@ -34,27 +23,21 @@ export function RankBoard({ id, joined, loggedIn, top, me, error, myName, myLeve
         {me && joined ? <p className="text-sm font-bold text-main">내 순위 {me.rank}위</p> : null}
       </div>
 
-      {!loggedIn ? (
-        <Link
-          to="/login"
-          className="mt-3 flex items-center justify-between rounded-2xl bg-main-50 px-4 py-3 text-sm font-bold text-main"
-        >
-          로그인하면 랭킹에 참가할 수 있어요
-          <span>→</span>
-        </Link>
-      ) : !joined ? (
-        <form onSubmit={onSubmit} className="mt-3 flex gap-2">
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            maxLength={12}
-            placeholder="랭킹에 보일 이름"
-            className="min-w-0 flex-1 rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-main"
-          />
-          <button type="submit" className="rounded-2xl bg-main px-4 py-3 text-sm font-bold text-white">
-            참가
-          </button>
-        </form>
+      {!joined ? (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Link
+            to="/signup?next=/yanggu"
+            className="rounded-2xl bg-main px-4 py-3 text-center text-sm font-bold text-white"
+          >
+            가입하고 랭킹 참가
+          </Link>
+          <Link
+            to="/login?next=/yanggu"
+            className="rounded-2xl border border-main px-4 py-3 text-center text-sm font-bold text-main"
+          >
+            로그인
+          </Link>
+        </div>
       ) : null}
 
       {error ? <p className="mt-3 text-xs text-gray-500">{error}</p> : null}

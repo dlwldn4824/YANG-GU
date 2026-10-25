@@ -10,8 +10,8 @@ export function PresentPage() {
       <div className="grid min-h-dvh place-items-center bg-main px-4 text-center text-white">
         <div>
           <p className="text-lg font-bold">제시할 군민증이 없습니다</p>
-          <Link to="/login" className="mt-6 inline-block rounded-full bg-white px-5 py-2 font-bold text-main">
-            로그인
+          <Link to="/signup" className="mt-6 inline-block rounded-full bg-white px-5 py-2 font-bold text-main">
+            군민증 만들기
           </Link>
         </div>
       </div>

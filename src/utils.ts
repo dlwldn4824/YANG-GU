@@ -82,3 +82,9 @@ export function usageBadge(benefit: Benefit) {
   if (benefit.howto.includes('사전예약')) return '사전 예약'
   return '현장 제시'
 }
+
+// 로그인 뒤에는 ?next= 로 넘겨받은 화면(없으면 내 군민증)으로 돌아간다.
+export function nextPath(params: URLSearchParams) {
+  const next = params.get('next') ?? ''
+  return next.startsWith('/') && !next.startsWith('//') ? next : '/card'
+}

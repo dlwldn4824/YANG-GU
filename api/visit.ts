@@ -3,51 +3,11 @@
 // GET  /api/visit?days=7                      → 날짜별 방문자·페이지뷰, 오늘 많이 본 화면, 최근 기록
 // IP나 이름은 저장하지 않는다. id는 휴대폰마다 만든 무작위 번호다.
 
+import { fail, json, redis, type Command } from './_redis.js'
+
 const DAY_TTL = 60 * 60 * 24 * 120
 const LOG = 'visit:log'
 const LOG_SIZE = 300
-
-type Command = (string | number)[]
-
-// 랭킹 API와 같은 방식으로 Upstash 환경변수를 찾는다 (api/rank.ts 참고).
-function redisEnv() {
-  const env = process.env
-  const urlKey = Object.keys(env).find(
-    (key) => /(^|_)KV_REST_API_URL$/.test(key) || /(^|_)REDIS_REST_URL$/.test(key),
-  )
-  if (!urlKey) return null
-  const token = env[urlKey.replace(/_URL$/, '_TOKEN')]
-  const url = env[urlKey]
-  return url && token ? { url, token } : null
-}
-
-async function redis(commands: Command[]) {
-  const env = redisEnv()
-  if (!env) throw new Error('no-redis')
-  const res = await fetch(`${env.url}/pipeline`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(commands),
-  })
-  if (!res.ok) throw new Error(`redis ${res.status}`)
-  const rows = (await res.json()) as { result?: unknown; error?: string }[]
-  return rows.map((row) => {
-    if (row.error) throw new Error(row.error)
-    return row.result
-  })
-}
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  })
-}
-
-function fail(error: unknown) {
-  const message = error instanceof Error ? error.message : 'error'
-  return json({ error: message }, message === 'no-redis' ? 503 : 500)
-}
 
 // 한국 시간 기준 날짜
 function kstDay(offset = 0) {

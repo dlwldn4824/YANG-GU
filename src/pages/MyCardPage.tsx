@@ -86,12 +86,20 @@ export function MyCardPage() {
                   </button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center rounded-full bg-main py-3 font-bold text-white hover:bg-main-dark"
-                >
-                  로그인
-                </Link>
+                <>
+                  <Link
+                    to="/signup"
+                    className="inline-flex items-center justify-center rounded-full bg-main py-3 font-bold text-white hover:bg-main-dark"
+                  >
+                    군민증 만들기
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center rounded-full border border-main py-3 font-bold text-main"
+                  >
+                    로그인
+                  </Link>
+                </>
               )}
             </div>
           </div>

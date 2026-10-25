@@ -45,10 +45,10 @@ export function IntroPage() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
-            to={citizen ? '/card' : '/login'}
+            to={citizen ? '/card' : '/signup'}
             className="inline-flex items-center gap-1 rounded-full bg-main px-6 py-3 font-bold text-white hover:bg-main-dark"
           >
-            {citizen ? '내 군민증 보기' : '로그인'}
+            {citizen ? '내 군민증 보기' : '군민증 만들기'}
             <Icon name="right" className="h-5 w-5" />
           </Link>
           <Link

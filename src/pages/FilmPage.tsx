@@ -144,13 +144,11 @@ export function FilmPage() {
       <RankBoard
         id={ranking.id}
         joined={ranking.joined}
-        loggedIn={ranking.loggedIn}
         top={ranking.top}
         me={ranking.me}
         error={ranking.error}
         myName={ranking.name}
         myLevel={growth.level}
-        onJoin={ranking.join}
       />
 
       {levelUp ? <LevelUpModal growth={levelUp} onClose={ackLevelUp} /> : null}
