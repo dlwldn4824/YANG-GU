@@ -101,6 +101,7 @@ type AuthValue = {
   token: string | null
   login: (email: string, password: string) => Promise<string | null>
   signup: (form: SignupForm) => Promise<string | null>
+  loginWithGoogle: (credential: string) => Promise<string | null>
   logout: () => void
 }
 
@@ -162,14 +163,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [apply],
   )
 
+  // 구글 버튼이 준 ID 토큰을 서버에 넘기면, 처음이면 가입하고 아니면 로그인한다.
+  const loginWithGoogle = useCallback(
+    async (credential: string) => {
+      try {
+        const res = await post('google', { credential })
+        if (!res.ok || !res.token || !res.user) return errorText(res.status, res.error)
+        apply(res.token, res.user)
+        return null
+      } catch {
+        return errorText(0)
+      }
+    },
+    [apply],
+  )
+
   const logout = useCallback(() => {
     void post('logout', {}, token).catch(() => {})
     apply(null, null)
   }, [apply, token])
 
   const value = useMemo<AuthValue>(
-    () => ({ citizen, token, login, signup, logout }),
-    [citizen, token, login, signup, logout],
+    () => ({ citizen, token, login, signup, loginWithGoogle, logout }),
+    [citizen, token, login, signup, loginWithGoogle, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

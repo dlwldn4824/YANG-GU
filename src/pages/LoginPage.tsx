@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { OfficialSignup } from '../components/OfficialSignup'
+import { GoogleLogin } from '../components/GoogleLogin'
 import { useAuth } from '../auth'
 import { nextPath } from '../utils'
 
@@ -35,6 +36,7 @@ export function LoginPage() {
       <PageHeader title="군민증 불러오기" desc="가입한 이메일로 로그인하면 어느 휴대폰에서든 내 군민증을 불러와요." />
       <main className="mx-auto max-w-md px-4 py-8">
         <OfficialSignup />
+        <GoogleLogin onDone={() => navigate(nextPath(params))} />
         <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
           <input
             type="email"

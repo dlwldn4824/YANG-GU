@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { OfficialSignup } from '../components/OfficialSignup'
+import { GoogleLogin } from '../components/GoogleLogin'
 import { useAuth } from '../auth'
 import { CARD_DESIGNS } from '../data'
 import type { CardDesign } from '../types'
@@ -55,6 +56,7 @@ export function SignupPage() {
       <PageHeader title="배꼬비 계정 만들기" desc="공식 군민증을 받았다면, 같은 이메일로 가입해 배꼬비를 키우고 랭킹에 참가하세요." />
       <main className="mx-auto max-w-md px-4 py-8">
         <OfficialSignup />
+        <GoogleLogin onDone={() => navigate(nextPath(params))} />
         <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
           <label className="block">
             <span className="text-sm font-bold">이름</span>
